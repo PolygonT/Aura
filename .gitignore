@@ -1,8 +1,10 @@
 Binaries/
 Intermediate/
 Saved/
-.vs/
 Platforms/
+.vs/
+.cache/
+
 
 .vsconfig
 *.sln
