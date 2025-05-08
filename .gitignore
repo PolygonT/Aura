@@ -1,0 +1,10 @@
+Binaries/
+Intermediate/
+Saved/
+.vs/
+.vsconfig
+
+*.sln
+compile_commands.json
+
+
