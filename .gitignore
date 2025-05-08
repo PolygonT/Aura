@@ -2,8 +2,9 @@ Binaries/
 Intermediate/
 Saved/
 .vs/
-.vsconfig
+Platforms/
 
+.vsconfig
 *.sln
 compile_commands.json
 
