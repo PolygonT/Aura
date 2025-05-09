@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Charactor/BaseCharactor.h"
+#include "Character/BaseCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
 
-ABaseCharactor::ABaseCharactor()
+ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -13,7 +13,7 @@ ABaseCharactor::ABaseCharactor()
     Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ABaseCharactor::BeginPlay()
+void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	

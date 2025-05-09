@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "BaseCharactor.generated.h"
+#include "BaseCharacter.generated.h"
 
 UCLASS(Abstract)
-class AURA_API ABaseCharactor : public ACharacter
+class AURA_API ABaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	ABaseCharactor();
+	ABaseCharacter();
 
 protected:
 	virtual void BeginPlay() override;

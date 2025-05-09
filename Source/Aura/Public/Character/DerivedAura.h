@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Charactor/BaseCharactor.h"
+#include "Character/BaseCharacter.h"
 #include "DerivedAura.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class AURA_API ADerivedAura : public ABaseCharactor
+class AURA_API ADerivedAura : public ABaseCharacter
 {
 	GENERATED_BODY()
 	
