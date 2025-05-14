@@ -14,4 +14,14 @@ class AURA_API ADerivedAura : public ABaseCharacter
 {
 	GENERATED_BODY()
 	
+public:
+    ADerivedAura();
+
+    void PossessedBy(AController *NewController) override;
+
+    void OnRep_PlayerState() override;
+
+// protected:
+    // UPROPERTY()
+    // TObjectPtr<ADefaultPlayerState> AuraPlayerState;
 };
