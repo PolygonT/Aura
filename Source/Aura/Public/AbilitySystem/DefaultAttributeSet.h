@@ -45,6 +45,8 @@ public:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+    virtual void PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue) override;
+
     //~ Start Member function
     UFUNCTION()
     void OnRep_Health(const FGameplayAttributeData OldHealth) const;

@@ -4,7 +4,9 @@
 #include "Character/DerivedAura.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Player/DefaultPlayerController.h"
 #include "Player/DefaultPlayerState.h"
+#include "UI/HUD/DefaultHUD.h"
 
 ADerivedAura::ADerivedAura() {
     // 移动时根据移动方向旋转Mesh的角度
@@ -24,17 +26,25 @@ void ADerivedAura::PossessedBy(AController *NewController) {
     Super::PossessedBy(NewController);
 
     // Init Ability actor info for the Server
-    auto AuraPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
-    AuraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(AuraPlayerState, this);
-    AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
-    AttributeSet = AuraPlayerState->GetAttributeSet();
+    InitAbilityActorInfo();
 }
 
 void ADerivedAura::OnRep_PlayerState() {
     Super::OnRep_PlayerState();
 
-    auto AuraPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
-    AuraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(AuraPlayerState, this);
-    AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
-    AttributeSet = AuraPlayerState->GetAttributeSet();
+    // Init Ability actor info for the Client
+    InitAbilityActorInfo();
+}
+
+void ADerivedAura::InitAbilityActorInfo() {
+    auto DefaultPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
+    DefaultPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(DefaultPlayerState, this);
+    AbilitySystemComponent = DefaultPlayerState->GetAbilitySystemComponent();
+    AttributeSet = DefaultPlayerState->GetAttributeSet();
+
+    if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(GetController())) {
+        if (ADefaultHUD* DefaultHUD = Cast<ADefaultHUD>(DefaultPlayerController->GetHUD())) {
+            DefaultHUD->InitOverlay(DefaultPlayerController, DefaultPlayerState, AbilitySystemComponent, AttributeSet);
+        }
+    }
 }

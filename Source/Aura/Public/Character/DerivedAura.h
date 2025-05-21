@@ -24,4 +24,6 @@ public:
 // protected:
     // UPROPERTY()
     // TObjectPtr<ADefaultPlayerState> AuraPlayerState;
+private:
+    void InitAbilityActorInfo();
 };
