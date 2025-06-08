@@ -4,6 +4,7 @@
 #include "DefaultPlayerState.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/DefaultAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 ADefaultPlayerState::ADefaultPlayerState() {
     NetUpdateFrequency = 100.f;
@@ -19,3 +20,13 @@ ADefaultPlayerState::ADefaultPlayerState() {
 UAbilitySystemComponent* ADefaultPlayerState::GetAbilitySystemComponent() const {
     return AbilitySystemComponent;
 }
+
+void ADefaultPlayerState::GetLifetimeReplicatedProps(
+    TArray<FLifetimeProperty> &OutLifetimeProps) const {
+
+    DOREPLIFETIME(ADefaultPlayerState, PlayerLevel);
+}
+
+void ADefaultPlayerState::OnRep_PlayerLevel(int32 OldPlayerLevel) {
+}
+

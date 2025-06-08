@@ -43,3 +43,7 @@ void AEnemy::InitAbilityActorInfo() {
     AbilitySystemComponent->InitAbilityActorInfo(this, this);
     CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }
+
+int32 AEnemy::GetPlayerLevel() {
+    return PlayerLevel;
+}

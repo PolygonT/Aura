@@ -28,6 +28,7 @@ void ADerivedAura::PossessedBy(AController *NewController) {
 
     // Init Ability actor info for the Server
     InitAbilityActorInfo();
+    AddCharactorAbilities();
 }
 
 void ADerivedAura::OnRep_PlayerState() {
@@ -50,4 +51,13 @@ void ADerivedAura::InitAbilityActorInfo() {
             DefaultHUD->InitOverlay(DefaultPlayerController, DefaultPlayerState, AbilitySystemComponent, AttributeSet);
         }
     }
+
+    InitPrimaryAttributes();
+    InitSecondaryAttributes();
+    InitVitalAttributes();
+}
+
+int32 ADerivedAura::GetPlayerLevel() {
+    auto DefaultPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
+    return DefaultPlayerState->GetPlayerLevel();
 }

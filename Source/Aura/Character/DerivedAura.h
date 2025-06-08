@@ -21,9 +21,12 @@ public:
 
     void OnRep_PlayerState() override;
 
-// protected:
+    // ===== CombatInterface
+    virtual int32 GetPlayerLevel() override;
+
+    // protected:
     // UPROPERTY()
     // TObjectPtr<ADefaultPlayerState> AuraPlayerState;
-private:
+  private:
     virtual void InitAbilityActorInfo() override;
 };

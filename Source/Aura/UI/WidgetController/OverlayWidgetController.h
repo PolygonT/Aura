@@ -12,11 +12,6 @@
 struct FOnAttributeChangeData;
 class UTexture2D;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
-
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase {
     GENERATED_BODY()
@@ -35,6 +30,10 @@ struct FUIWidgetRow : public FTableRowBase {
 };
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFloatValueChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+
+
 /**
  * 
  */
@@ -48,27 +47,30 @@ public:
 
     virtual void BindCallbacksToDependencies() override;
 
-    void HealthChanged(const FOnAttributeChangeData& Data);
-
-    void MaxHealthChanged(const FOnAttributeChangeData& Data);
-
-    void ManaChanged(const FOnAttributeChangeData& Data);
-
-    void MaxManaChanged(const FOnAttributeChangeData& Data);
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnHealthChanged;
 
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-    FOnHealthChangedSignature OnHealthChanged;
+    FOnFloatValueChangedSignature OnMaxHealthChanged;
 
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-    FOnMaxHealthChangedSignature OnMaxHealthChanged;
+    FOnFloatValueChangedSignature OnManaChanged;
 
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-    FOnManaChangedSignature OnManaChanged;
+    FOnFloatValueChangedSignature OnMaxManaChanged;
 
-    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-    FOnMaxManaChangedSignature OnMaxManaChanged;
+    UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+    FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
   protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
     TObjectPtr<UDataTable> MessageWidgetDataTable;
+
+    template<typename T>
+    T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 };
+
+template<typename T>
+T* UOverlayWidgetController::GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag) {
+    return DataTable->FindRow<T>(Tag.GetTagName(), TEXT(""));
+}

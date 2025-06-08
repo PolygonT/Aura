@@ -3,6 +3,7 @@
 
 #include "DefaultHUD.h"
 #include "UI/Widget/DefaultUserWidget.h"
+#include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/WidgetController/DefaultWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
@@ -14,6 +15,16 @@ UOverlayWidgetController* ADefaultHUD::GetOverlayWidgetController(const FWidgetC
     }
 
     return OverlayWidgetController;
+}
+
+UAttributeMenuWidgetController *ADefaultHUD::GetAttributeMenuWidgetController(
+    const FWidgetControllerParams &Param) {
+    if (!AttributeMenuWidgetController) {
+        AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController>(this, AttributeMenuWidgetControllerClass);
+        AttributeMenuWidgetController->SetWidgetControllerMemberVariables(Param);
+    }
+
+    return AttributeMenuWidgetController;
 }
 
 void ADefaultHUD::InitOverlay(
@@ -31,4 +42,5 @@ void ADefaultHUD::InitOverlay(
     LocalOverlayWidgetController->BindCallbacksToDependencies();
     Widget->AddToViewport();
 }
+
 

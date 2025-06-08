@@ -10,6 +10,10 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class IEnemyInterface;
+class UDefaultInputConfig;
+struct FGameplayTag;
+class UDefaultAbilitySystemComponent;
+class USplineComponent;
 
 /**
  * 
@@ -29,7 +33,7 @@ protected:
 
     virtual void PlayerTick(float DeltaTime) override;
 
-private:
+  private:
     // ==== MEMBER VIRIABLES ====
     UPROPERTY(EditAnywhere, Category="Input")
     TObjectPtr<UInputMappingContext> InputMappingContext;
@@ -37,13 +41,50 @@ private:
     UPROPERTY(EditAnywhere, Category="Input")
     TObjectPtr<UInputAction> MoveAction;
 
+    UPROPERTY(EditAnywhere, Category="Input")
+    TObjectPtr<UInputAction> ShiftAction;
+
     TScriptInterface<IEnemyInterface> LastFrameActor;
 
     TScriptInterface<IEnemyInterface> ThisFrameActor;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UDefaultInputConfig> InputConfig;
+
+    TObjectPtr<UDefaultAbilitySystemComponent> DefaultAbilitySystemComponent;
+
+    FVector CachedDestination { FVector::ZeroVector };
+
+    float FollowTime { 0.f };
+
+    float ShortPressThreshold { 0.5f };
+
+    bool bAutoRunning { false };
+
+    bool bTargeting { false };
+
+    float AutoRunAcceptanceRadius { 50.f };
+
+    TObjectPtr<USplineComponent> Spline;
+
+    bool bShiftKeyDown = false;
+
+
+    
 
     // ==== FUNCTIONS ====
     void Move(const FInputActionValue& InputActionValue);
 
     void CursorTrace();
 
+    void AbilityInputTagPressed(const FInputActionValue &value, const FGameplayTag Tag);
+    void AbilityInputTagReleased(const FInputActionValue &value, const FGameplayTag Tag);
+    void AbilityInputTagHeld(const FInputActionValue &value, const FGameplayTag Tag);
+
+    UDefaultAbilitySystemComponent *GetASC();
+
+    void AutoRun();
+
+    void ShiftPressed();
+    void ShiftReleased();
 };

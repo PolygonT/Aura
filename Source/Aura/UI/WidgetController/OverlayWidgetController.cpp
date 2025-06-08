@@ -19,37 +19,27 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
     auto DefaultAttributeSet = CastChecked<UDefaultAttributeSet>(AttributeSet);
 
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetHealthAttribute())
-        .AddUObject(this, &UOverlayWidgetController::HealthChanged);
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnHealthChanged.Broadcast(Data.NewValue); });
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxHealthAttribute())
-        .AddUObject(this, &UOverlayWidgetController::MaxHealthChanged);
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxHealthChanged.Broadcast(Data.NewValue); });
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetManaAttribute())
-        .AddUObject(this, &UOverlayWidgetController::ManaChanged);
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnManaChanged.Broadcast(Data.NewValue); });
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxManaAttribute())
-        .AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxManaChanged.Broadcast(Data.NewValue); });
 
     CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-        [](const FGameplayTagContainer& AssetTags) 
+        [this](const FGameplayTagContainer& AssetTags) 
         {
             for (const auto& Tag : AssetTags) {
                 GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Black, FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString()));
+
+                auto MessageTag = FGameplayTag::RequestGameplayTag("Message");
+                if (Tag.MatchesTag(MessageTag)) {
+                    auto Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+                    // Row->MessageTag = Tag;
+                    MessageWidgetRowDelegate.Broadcast(*Row);
+                }
             }
         }
     );
-}
-
-
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) {
-    OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) {
-    OnMaxHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) {
-    OnManaChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) {
-    OnMaxManaChanged.Broadcast(Data.NewValue);
 }

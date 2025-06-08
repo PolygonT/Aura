@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Containers/Map.h"
+#include "Utils/GameplayAbilityUtils.h"
 
 AEffectActor::AEffectActor()
 {
@@ -18,39 +19,24 @@ void AEffectActor::BeginPlay()
 	Super::BeginPlay();
 }
 
-TOptional<FGameplayEffectSpecHandle> AEffectActor::ConstructEffectSpec(
-        AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass) {
-    auto TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-
-    if (!TargetAbilitySystemComponent) return {};
-
-    check(GamePlayEffectClass);
-
-    auto EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
-    EffectContextHandle.AddSourceObject(this);
-
-    return { TargetAbilitySystemComponent->MakeOutgoingSpec(GamePlayEffectClass, EffectLevel, EffectContextHandle) };
-}
-
-
 void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass) {
     // TODO 1: USE EffectSpecOpt.GetPtrOrNull() will cause a crash, don't known why
-    auto EffectSpecOpt = ConstructEffectSpec(TargetActor, GamePlayEffectClass);
-    if (!EffectSpecOpt.IsSet()) return;
+    auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(this, TargetActor, GamePlayEffectClass, EffectLevel);
+    if (!EffectSpec) return;
    
-    auto EffectSpec = EffectSpecOpt.GetValue();
-    auto DurationPolicy = EffectSpec.Data->Def->DurationPolicy;
+    // auto EffectSpec = EffectSpecOpt.GetValue();
+    auto DurationPolicy = EffectSpec->Data->Def->DurationPolicy;
 
     switch (DurationPolicy) {
         case EGameplayEffectDurationType::Instant :
         case EGameplayEffectDurationType::HasDuration :
             {
-                ApplyEffect(TargetActor, EffectSpec, GamePlayEffectClass);
+                ApplyEffect(TargetActor, *EffectSpec, GamePlayEffectClass);
                 break;
             }
         case EGameplayEffectDurationType::Infinite :
             {
-                auto ActiveEffect = ApplyEffect(TargetActor, EffectSpec, GamePlayEffectClass);
+                auto ActiveEffect = ApplyEffect(TargetActor, *EffectSpec, GamePlayEffectClass);
 
                 if (EffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap) {
                     ActorActiveEffectsMap.Add(TargetActor->GetUniqueID(), ActiveEffect);

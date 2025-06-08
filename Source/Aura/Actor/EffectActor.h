@@ -25,9 +25,6 @@ public:
 	AEffectActor();
 
     UFUNCTION(BlueprintCallable)
-    TOptional<FGameplayEffectSpecHandle> ConstructEffectSpec(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass);
-
-    UFUNCTION(BlueprintCallable)
     void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass);
 
     UFUNCTION(BlueprintCallable)
