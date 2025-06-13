@@ -38,6 +38,10 @@ FGameplayTag FDefaultGameplayTags::InputTags_2;
 FGameplayTag FDefaultGameplayTags::InputTags_3;
 FGameplayTag FDefaultGameplayTags::InputTags_4;
 
+FGameplayTag FDefaultGameplayTags::Damage;
+
+FGameplayTag FDefaultGameplayTags::Effect_HitReact;
+
 void FDefaultGameplayTags::InitNativeGameplayTags() {
     // Vital Attributes
     Attributes_Vital_Health =
@@ -90,6 +94,12 @@ void FDefaultGameplayTags::InitNativeGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Input.3", FString(""));
     InputTags_4 =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Input.4", FString(""));
+
+    Damage =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Damge", FString(""));
+
+    Effect_HitReact =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.HitReact", FString(""));
 
     Iter.Add(Attributes_Vital_Health);
     Iter.Add(Attributes_Vital_Mana);

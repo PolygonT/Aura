@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/AbilityTask/TargetDataUnderMouse.h"
 #include "Abilities/GameplayAbilityTargetTypes.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "AbilitySystemComponent.h"
@@ -49,9 +50,16 @@ void UTargetDataUnderMouse::SendMouseCursorData() {
     FHitResult HitResult {};
     Controller->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult);
 
-    // if (!HitResult.bBlockingHit) {
-    //     return;
-    // }
+    // DrawDebugSphere(GetWorld(), HitResult.Location, 10.f, 12, FColor::Red, false, 20.f);
+    // 
+    // auto ThetaRadians = FMath::DegreesToRadians(45.0);
+    // HitResult.Location = {
+    //     HitResult.Location.X - (122.8f * FMath::Cos(ThetaRadians) / FMath::Sin(ThetaRadians)),
+    //     HitResult.Location.Y,
+    //     HitResult.Location.Z + 122.8f
+    // };
+    //
+    // DrawDebugSphere(GetWorld(), HitResult.Location, 10.f, 12, FColor::Blue, false, 20.f);
 
     FGameplayAbilityTargetDataHandle DataHandle;
     FGameplayAbilityTargetData_SingleTargetHit* Data = new FGameplayAbilityTargetData_SingleTargetHit();

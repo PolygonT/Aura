@@ -8,6 +8,11 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UNiagaraSystem;
+class USoundBase;
+class UAudioComponent;
+class UGameplayEffect;
+class UDefaultGameplayAbility;
 
 UCLASS()
 class AURA_API ADefaultProjectile : public AActor
@@ -17,11 +22,17 @@ class AURA_API ADefaultProjectile : public AActor
 public:	
 	ADefaultProjectile();
 
+    UPROPERTY()
     TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
+
+    UPROPERTY()
+    TObjectPtr<UDefaultGameplayAbility> GameplayAbility;
 
 protected:
 
 	virtual void BeginPlay() override;
+
+    virtual void Destroyed() override;
 
     UFUNCTION()
     void OnSphereOverlap(UPrimitiveComponent *OverlappedComponent,
@@ -29,8 +40,24 @@ protected:
                          int32 OtherBodyIndex, bool bFromSweep,
                          const FHitResult &SweepResult);
 
-
-private:
+  private:
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<USphereComponent> Sphere;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UNiagaraSystem> ImpactEffect;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<USoundBase> ImpactSound;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<USoundBase> LoopingSound;
+
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+    bool bHit;
+
+    UPROPERTY(EditAnywhere)
+    float LifeSpan {5.f};
 };

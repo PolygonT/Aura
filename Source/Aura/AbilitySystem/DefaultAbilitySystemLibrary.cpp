@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/DefaultAbilitySystemLibrary.h"
+#include "Game/DefaultGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/DefaultPlayerState.h"
 #include "UI/HUD/DefaultHUD.h"
@@ -59,3 +60,15 @@ UDefaultAbilitySystemLibrary::GetAttributeMenuWidgetController(
     return DefaultHUD->GetAttributeMenuWidgetController(Params);
 
 }
+
+// void UDefaultAbilitySystemLibrary::InitializeDefaultAttributes(
+//     const UObject *WorldContextObject, ECharacterClass CharacterClass,
+//     float Level) {
+//     
+//     auto GameMode = Cast<ADefaultGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+//
+//     if (!GameMode) { return; }
+//
+//     auto ClassInfo = GameMode->CharacterClassInfo;
+//     auto ClassDefaultInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
+// }

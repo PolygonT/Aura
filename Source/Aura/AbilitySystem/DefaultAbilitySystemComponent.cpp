@@ -28,6 +28,14 @@ void UDefaultAbilitySystemComponent::AddCharacterAbilities(
     }
 }
 
+void UDefaultAbilitySystemComponent::AddCharacterAbilitiesNormal(
+    const TArray<TSubclassOf<UGameplayAbility>> &NormalAbilities) {
+    for (auto& ItemClass : NormalAbilities) {
+        auto AbilitySpec = FGameplayAbilitySpec(ItemClass, 1);
+        GiveAbility(AbilitySpec);
+    }
+}
+
 void UDefaultAbilitySystemComponent::AbilityInputTagHeld(
     const FGameplayTag &InputTag) {
     if (!InputTag.IsValid()) {
@@ -57,4 +65,5 @@ void UDefaultAbilitySystemComponent::AbilityInputTagReleased(
         }
     }
 }
+
 

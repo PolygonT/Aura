@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystemInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -25,8 +26,11 @@ public:
 
     UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+    // =============== Combat Interface ===================
+    virtual UAnimMontage *GetHitReactMontage_Implementation() override;
+
 protected:
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     TObjectPtr<USkeletalMeshComponent> Weapon;
@@ -37,17 +41,23 @@ protected:
     UPROPERTY()
     TObjectPtr<UAttributeSet> AttributeSet;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TSubclassOf<UGameplayEffect> DefaultPrimaryAttributesEffect;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TSubclassOf<UGameplayEffect> DefaultSecondaryAttributesEffect;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
-    TSubclassOf<UGameplayEffect> DefaultVitalAttributesEffect;
+    // UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
+    // TSubclassOf<UGameplayEffect> DefaultPrimaryAttributesEffect;
+    //
+    // UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
+    // TSubclassOf<UGameplayEffect> DefaultSecondaryAttributesEffect;
+    //
+    // UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
+    // TSubclassOf<UGameplayEffect> DefaultVitalAttributesEffect;
 
     UPROPERTY(EditAnywhere)
     FName WeaponTipSocketName;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    ECharacterClass CharacterClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
 
     virtual FVector GetCombatSocketLocation() override;
 
@@ -61,7 +71,17 @@ protected:
 
     void AddCharactorAbilities();
 
-  private:
+private:
     UPROPERTY(EditAnywhere, Category = "Abilities")
     TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+    UPROPERTY(EditAnywhere, Category = "Abilities")
+    TArray<TSubclassOf<UGameplayAbility>> NormalAbilities;
+    //
+    // UPROPERTY(EditAnywhere, Category = "Abilities")
+    // TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    TObjectPtr<UAnimMontage> HitReactMontage;
+
 };

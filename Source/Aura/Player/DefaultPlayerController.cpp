@@ -82,6 +82,7 @@ void ADefaultPlayerController::Move(const FInputActionValue& InputActionValue) {
     const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
     if (APawn* ControlledPawn = GetPawn<APawn>()) {
+        bAutoRunning = false;
         ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
         ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
     }

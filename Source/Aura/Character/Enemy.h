@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Character/BaseCharacter.h"
 #include "Interaction/EnemyInterface.h"
+#include "UI/WidgetController/OverlayWidgetController.h"
 #include "Enemy.generated.h"
+
+class UWidgetComponent;
 
 /**
  * 
@@ -25,11 +28,34 @@ public:
     // ==== Combat Interface ====
     virtual int32 GetPlayerLevel() override;
 
-  protected:
+    // // ==== Default WidgetController Override ====
+    // virtual void BroadcastInitialValues() override;
+    //
+    // virtual void BindCallbacksToDependencies() override;
+
+    // ==== Member Variable ====
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnMaxHealthChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnHealthChanged;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Combat")
+    bool bHitReacting { false };
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    float BaseWalkSpped { 250.f };
+
+protected:
     virtual void BeginPlay() override;
 
     virtual void InitAbilityActorInfo() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
     int32 PlayerLevel = 1;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TObjectPtr<UWidgetComponent> HealthBar;
+
 };
+

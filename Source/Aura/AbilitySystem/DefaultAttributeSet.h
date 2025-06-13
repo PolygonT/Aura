@@ -29,7 +29,7 @@ struct FEffectProperties {
     TObjectPtr<AActor> SourceAvatarActor;
 
     UPROPERTY()
-    TObjectPtr<AController> SourceController;
+    TObjectPtr<APlayerController> SourceController;
 
     UPROPERTY()
     TObjectPtr<ACharacter> SourceCharacter;
@@ -41,7 +41,7 @@ struct FEffectProperties {
     TObjectPtr<AActor> TargetAvatarActor;
 
     UPROPERTY()
-    TObjectPtr<AController> TargetController;
+    TObjectPtr<APlayerController> TargetController;
 
     UPROPERTY()
     TObjectPtr<ACharacter> TargetCharacter;
@@ -134,6 +134,13 @@ public:
     FGameplayAttributeData Mana;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, Mana)
 
+    /**
+    * Meta Attributes (Does't Replicate)
+    */
+    UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+    FGameplayAttributeData IncomingDamage;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingDamage)
+    
     TMap<FGameplayTag, FGameplayAttribute(*)()> AttributeGetMap;
 
     //~ End Member viriables
@@ -194,4 +201,7 @@ public:
     UFUNCTION()
     void OnRep_MaxMana(const FGameplayAttributeData OldMaxMana) const;
     //~ End Member function
+private:
+  void SetEffectProperties(const FGameplayEffectModCallbackData &Data,
+                           FEffectProperties Props);
 };

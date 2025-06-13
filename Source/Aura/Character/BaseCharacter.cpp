@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
+#include "Aura.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemComponent.h"
@@ -13,7 +14,10 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
     GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+    GetCapsuleComponent()->SetGenerateOverlapEvents(false);
     GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(ProjectileChannel, ECR_Overlap);
+    GetMesh()->SetGenerateOverlapEvents(true);
 
     Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
     Weapon->SetupAttachment(GetMesh(), "WeaponHandSocket");
@@ -34,24 +38,28 @@ void ABaseCharacter::InitAbilityActorInfo() {
 }
 
 void ABaseCharacter::InitPrimaryAttributes() {
-    check(IsValid(GetAbilitySystemComponent()) && DefaultPrimaryAttributesEffect);
+    check(CharacterClassInfo);
+    check(IsValid(GetAbilitySystemComponent()));
+    auto Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
-    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, DefaultPrimaryAttributesEffect, 1.f);
+    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, Info.PrimaryAttributesEffect, GetPlayerLevel());
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
 void ABaseCharacter::InitSecondaryAttributes() {
-    check(IsValid(GetAbilitySystemComponent()) && DefaultSecondaryAttributesEffect);
+    check(CharacterClassInfo);
+    check(IsValid(GetAbilitySystemComponent()));
 
-    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, DefaultSecondaryAttributesEffect, 1.f);
+    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, CharacterClassInfo->SecondaryAttributesEffect, 1.f);
     // GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*EffectSpec.Data.Get(), GetAbilitySystemComponent());
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
 void ABaseCharacter::InitVitalAttributes() {
-    check(IsValid(GetAbilitySystemComponent()) && DefaultVitalAttributesEffect);
+    check(CharacterClassInfo);
+    check(IsValid(GetAbilitySystemComponent()));
 
-    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, DefaultVitalAttributesEffect, 1.f);
+    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, CharacterClassInfo->VitalAttributesEffect, 1.f);
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
@@ -62,8 +70,13 @@ void ABaseCharacter::AddCharactorAbilities() {
 
     auto DefaultAbilitySystemComponent = CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent);
     DefaultAbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+    DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(NormalAbilities);
 }
 
 FVector ABaseCharacter::GetCombatSocketLocation() {
     return Weapon->GetSocketLocation(WeaponTipSocketName);
+}
+
+UAnimMontage *ABaseCharacter::GetHitReactMontage_Implementation() {
+    return HitReactMontage;
 }

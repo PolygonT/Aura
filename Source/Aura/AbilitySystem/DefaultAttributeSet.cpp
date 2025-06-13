@@ -2,9 +2,14 @@
 
 
 #include "DefaultAttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "DefaultGameplayTags.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/Pawn.h"
+#include "GameplayTagContainer.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "GameFramework/Character.h"
 
 
 UDefaultAttributeSet::UDefaultAttributeSet() {
@@ -66,14 +71,71 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
     const FGameplayEffectModCallbackData &Data) {
     Super::PostGameplayEffectExecute(Data);
 
+    // FEffectProperties Props {};
+    // SetEffectProperties(Data, Props);
+
     if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
         SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
+        UE_LOG(LogTemp, Warning, TEXT("Health Attribute changed, New Value [%f]."), GetHealth());
     }
 
     if (Data.EvaluatedData.Attribute == GetManaAttribute()) {
         SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
     }
 
+    if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) {
+        const float LocalIncomingDamge = GetIncomingDamage();
+        SetIncomingDamage(0.f);
+        if (LocalIncomingDamge > 0.f) {
+            const float NewHealth = GetHealth() - LocalIncomingDamge;
+            SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+            const bool bFatal = NewHealth <= 0.f;
+
+            if (bFatal) {
+                // Death
+
+            } else {
+
+                // Hit React
+                FGameplayTagContainer TagContainer { FDefaultGameplayTags::Effect_HitReact };
+                Data.Target.TryActivateAbilitiesByTag(TagContainer);
+            }
+        }
+
+    }
+
+}
+
+void UDefaultAttributeSet::SetEffectProperties(
+    const FGameplayEffectModCallbackData &Data, FEffectProperties Props) {
+    Props.EffectContextHandle = Data.EffectSpec.GetContext();
+    Props.SourceAbilitySystemComponent = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
+
+    if (IsValid(Props.SourceAbilitySystemComponent) &&
+        Props.SourceAbilitySystemComponent->AbilityActorInfo.IsValid() &&
+        Props.SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.IsValid()) {
+
+        Props.SourceAvatarActor = Props.SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
+        Props.SourceController = Props.SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
+        
+        // if (!Props.SourceController && !Props.SourceAvatarActor) {
+        //     if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor)) {
+        //         Props.SourceController = Pawn->GetController();
+        //     }
+        // }
+
+        // if (Props.SourceController) {
+        //     ACharacter* SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
+        // }
+    }
+
+    if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid()) {
+        Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+        Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+        Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
+        Props.TargetAbilitySystemComponent = Data.Target;
+    }
 }
 
 void UDefaultAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const {
@@ -140,3 +202,4 @@ void UDefaultAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData
 void UDefaultAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData OldManaRegeneration) const {
     GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ManaRegeneration, OldManaRegeneration);
 }
+

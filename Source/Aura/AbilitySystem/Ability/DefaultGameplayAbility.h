@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "ScalableFloat.h"
 #include "DefaultGameplayAbility.generated.h"
 
 /**
@@ -17,6 +18,9 @@ class AURA_API UDefaultGameplayAbility : public UGameplayAbility
 public:
     UPROPERTY(EditDefaultsOnly, Category = "Abilities")
     FGameplayTag AbilityTag;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modifiers")
+    FScalableFloat AbilityModifierMagnitude;
 
 protected:
 

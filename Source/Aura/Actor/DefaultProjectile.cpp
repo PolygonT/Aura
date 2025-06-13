@@ -2,8 +2,17 @@
 
 
 #include "Actor/DefaultProjectile.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Aura.h"
 #include "Components/SphereComponent.h"
+#include "DefaultGameplayTags.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Components/AudioComponent.h"
+#include "Utils/GameplayAbilityUtils.h"
+#include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 
 ADefaultProjectile::ADefaultProjectile()
 {
@@ -13,6 +22,7 @@ ADefaultProjectile::ADefaultProjectile()
     Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
     SetRootComponent(Sphere);
 
+    Sphere->SetCollisionObjectType(ProjectileChannel);
     Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     Sphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     Sphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
@@ -28,14 +38,48 @@ ADefaultProjectile::ADefaultProjectile()
 void ADefaultProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+    SetLifeSpan(LifeSpan);
+
+    // LOOPING SOUND
+    auto LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
+    LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
 	
     Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
+}
+
+void ADefaultProjectile::Destroyed() {
+    // if (!bHit && !HasAuthority()) {
+    //     UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+    //     UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+    // }
+    //
+    Super::Destroyed();
 }
 
 void ADefaultProjectile::OnSphereOverlap(
     UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep,
     const FHitResult &SweepResult) {
+    UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 
+    if (auto TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor)) {
+        // Cause Damge
+        TUniquePtr<FGameplayEffectSpecHandle> EffectSpec = 
+            GameplayAbilityUtils::ConstructEffectSpec(this, OtherActor, DamageEffectClass, 1.f);
+        
+        auto ProjectileInstigator = CastChecked<ICombatInterface>(GetInstigator());
+        float Damge = GameplayAbility->AbilityModifierMagnitude.GetValueAtLevel(ProjectileInstigator->GetPlayerLevel());
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(*EffectSpec, FDefaultGameplayTags::Damage, Damge);
+        TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpec->Data);
+
+    }
+
+    Destroy();
+    // if (HasAuthority()) {
+    //     Destroy();
+    // } else {
+    //     bHit = true;
+    // }
 }
 

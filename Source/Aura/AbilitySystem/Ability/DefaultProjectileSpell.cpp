@@ -24,9 +24,10 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
         return;
     }
 
+    APawn* AbilityInstigator = Cast<APawn>(GetAvatarActorFromActorInfo());
     ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo());
 
-    if (!CombatInterface) {
+    if (!CombatInterface || !AbilityInstigator) {
         return;
     }
 
@@ -37,10 +38,13 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
     FTransform SpawnTransform { SocketLocation, };
     SpawnTransform.SetRotation(Rotation.Quaternion());
 
-    auto Projectile = GetWorld()->SpawnActorDeferred<ADefaultProjectile>(
+    ADefaultProjectile* Projectile = GetWorld()->SpawnActorDeferred<ADefaultProjectile>(
         ProjectileClass, SpawnTransform, 
         GetOwningActorFromActorInfo(), CastChecked<APawn>(GetAvatarActorFromActorInfo()), 
         ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+    Projectile->SetInstigator(AbilityInstigator);
+    Projectile->GameplayAbility = this;
 
 
     Projectile->FinishSpawning(SpawnTransform);

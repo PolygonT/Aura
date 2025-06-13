@@ -52,5 +52,9 @@ struct FDefaultGameplayTags {
 
     // ----------------------- Input Tags -----------------------
 
+    static FGameplayTag Damage;
+
+    static FGameplayTag Effect_HitReact;
+
 };
 
