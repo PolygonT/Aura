@@ -10,7 +10,7 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies() {
     check(AttributeInfo);
     auto DefaultAttributeSet = CastChecked<UDefaultAttributeSet>(AttributeSet);
 
-    AttributeInfo->AttributeInfoMap[FDefaultGameplayTags::Attributes_Primary_Intelligence];
+    // AttributeInfo->AttributeInfoMap[FDefaultGameplayTags::Attributes_Primary_Intelligence];
 
     for(auto& Pair : AttributeInfo->AttributeInfoMap) {
         auto Attribute = DefaultAttributeSet->AttributeGetMap[Pair.Key]();

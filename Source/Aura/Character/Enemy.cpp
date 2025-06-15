@@ -92,3 +92,10 @@ void AEnemy::InitAbilityActorInfo() {
 int32 AEnemy::GetPlayerLevel() {
     return PlayerLevel;
 }
+
+void AEnemy::Die() {
+    Super::Die();
+
+    HealthBar->SetVisibility(false);
+    SetLifeSpan(5.f);
+}

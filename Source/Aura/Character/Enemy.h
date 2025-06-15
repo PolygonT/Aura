@@ -28,6 +28,8 @@ public:
     // ==== Combat Interface ====
     virtual int32 GetPlayerLevel() override;
 
+    virtual void Die() override;
+
     // // ==== Default WidgetController Override ====
     // virtual void BroadcastInitialValues() override;
     //

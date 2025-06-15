@@ -13,6 +13,8 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
+class UMaterialInstance;
+class UMaterialInstanceDynamic;
 
 UCLASS(Abstract)
 class AURA_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -28,6 +30,16 @@ public:
 
     // =============== Combat Interface ===================
     virtual UAnimMontage *GetHitReactMontage_Implementation() override;
+
+    virtual void Die() override;
+    
+    UFUNCTION(NetMulticast, Reliable)
+    virtual void MulticastHandleDealth();
+
+    void Dissolve();
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void StartDissolveTimeline(const TArray<UMaterialInstanceDynamic*>& MaterialInstance);
 
 protected:
     virtual void BeginPlay() override;
@@ -84,4 +96,9 @@ private:
     UPROPERTY(EditAnywhere, Category = "Combat")
     TObjectPtr<UAnimMontage> HitReactMontage;
 
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    TObjectPtr<UMaterialInstance> DissolveMaterialInstance;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 };

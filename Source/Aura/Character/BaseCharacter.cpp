@@ -7,7 +7,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemComponent.h"
+#include "Engine/EngineTypes.h"
 #include "Utils/GameplayAbilityUtils.h"
+#include "Materials/MaterialInstance.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -80,3 +83,47 @@ FVector ABaseCharacter::GetCombatSocketLocation() {
 UAnimMontage *ABaseCharacter::GetHitReactMontage_Implementation() {
     return HitReactMontage;
 }
+
+void ABaseCharacter::Die() { 
+    MulticastHandleDealth();
+}
+
+void ABaseCharacter::MulticastHandleDealth_Implementation() {
+    Weapon->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    Weapon->SetEnableGravity(true);
+    Weapon->SetSimulatePhysics(true);
+    Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+    auto _Mesh = GetMesh();
+    _Mesh->SetEnableGravity(true);
+    _Mesh->SetSimulatePhysics(true);
+    _Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+    _Mesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    Dissolve();
+}
+
+void ABaseCharacter::Dissolve() {
+    if (IsValid(DissolveMaterialInstance) && IsValid(WeaponDissolveMaterialInstance)) {
+        
+        TArray<UMaterialInstanceDynamic*> arr {}; 
+
+        UMaterialInstanceDynamic* DynamicMatInst = 
+            UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+        GetMesh()->SetMaterial(0, DynamicMatInst);
+
+        UMaterialInstanceDynamic* WeaponDynamicMatInst = 
+            UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
+
+        GetMesh()->SetMaterial(0, DynamicMatInst);
+        Weapon->SetMaterial(0, WeaponDynamicMatInst);
+
+        arr.Add(DynamicMatInst);
+        arr.Add(WeaponDynamicMatInst);
+
+        StartDissolveTimeline(arr);
+    }
+}
+

@@ -22,7 +22,7 @@ void UDefaultAbilitySystemComponent::AddCharacterAbilities(
         auto AbilitySpec = FGameplayAbilitySpec(ItemClass, 1);
 
         if (auto DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability)) {
-            AbilitySpec.DynamicAbilityTags.AddTag(DefaultGameplayAbility->AbilityTag);
+            AbilitySpec.GetDynamicSpecSourceTags().AddTag(DefaultGameplayAbility->AbilityTag);
             GiveAbility(AbilitySpec);
         }
     }
@@ -44,7 +44,7 @@ void UDefaultAbilitySystemComponent::AbilityInputTagHeld(
 
     // TODO 3: remove this for loop
     for (auto& AbilitySpec : GetActivatableAbilities()) {
-        if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)) {
+        if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag)) {
             AbilitySpecInputPressed(AbilitySpec);
             if (!AbilitySpec.IsActive()) {
                 TryActivateAbility(AbilitySpec.Handle);
@@ -60,7 +60,7 @@ void UDefaultAbilitySystemComponent::AbilityInputTagReleased(
     }
 
     for (auto& AbilitySpec : GetActivatableAbilities()) {
-        if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)) {
+        if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag)) {
             AbilitySpecInputReleased(AbilitySpec);
         }
     }

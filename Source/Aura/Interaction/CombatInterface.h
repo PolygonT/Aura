@@ -38,4 +38,6 @@ public:
     /// code will include a thunk that calls the implementation method when necessary.
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
     UAnimMontage *GetHitReactMontage();
+
+    virtual void Die() = 0;
 };

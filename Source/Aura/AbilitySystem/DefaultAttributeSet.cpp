@@ -7,6 +7,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
 #include "GameplayTagContainer.h"
+#include "Interaction/CombatInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
@@ -94,7 +95,10 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
 
             if (bFatal) {
                 // Death
-
+                ICombatInterface* CombatInterface = Cast<ICombatInterface>(Data.Target.AbilityActorInfo->AvatarActor);
+                if (CombatInterface) {
+                    CombatInterface->Die();
+                }
             } else {
 
                 // Hit React
@@ -134,7 +138,7 @@ void UDefaultAttributeSet::SetEffectProperties(
         Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
         Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
         Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
-        Props.TargetAbilitySystemComponent = Data.Target;
+        Props.TargetAbilitySystemComponent = &Data.Target;
     }
 }
 
