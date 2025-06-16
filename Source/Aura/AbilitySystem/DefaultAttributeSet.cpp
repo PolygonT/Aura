@@ -8,9 +8,11 @@
 #include "GameFramework/Pawn.h"
 #include "GameplayTagContainer.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
+#include "Player/DefaultPlayerController.h"
 
 
 UDefaultAttributeSet::UDefaultAttributeSet() {
@@ -72,8 +74,8 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
     const FGameplayEffectModCallbackData &Data) {
     Super::PostGameplayEffectExecute(Data);
 
-    // FEffectProperties Props {};
-    // SetEffectProperties(Data, Props);
+    FEffectProperties Props {};
+    SetEffectProperties(Data, Props);
 
     if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
         SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
@@ -95,7 +97,7 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
 
             if (bFatal) {
                 // Death
-                ICombatInterface* CombatInterface = Cast<ICombatInterface>(Data.Target.AbilityActorInfo->AvatarActor);
+                ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
                 if (CombatInterface) {
                     CombatInterface->Die();
                 }
@@ -103,7 +105,13 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
 
                 // Hit React
                 FGameplayTagContainer TagContainer { FDefaultGameplayTags::Effect_HitReact };
-                Data.Target.TryActivateAbilitiesByTag(TagContainer);
+                Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+            }
+
+            // float damage text
+            if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(
+                    UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0))) {
+                DefaultPlayerController->ShowDamageNumber(LocalIncomingDamge, Props.TargetCharacter);
             }
         }
 
@@ -112,7 +120,7 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
 }
 
 void UDefaultAttributeSet::SetEffectProperties(
-    const FGameplayEffectModCallbackData &Data, FEffectProperties Props) {
+    const FGameplayEffectModCallbackData &Data, FEffectProperties& Props) {
     Props.EffectContextHandle = Data.EffectSpec.GetContext();
     Props.SourceAbilitySystemComponent = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
@@ -123,15 +131,15 @@ void UDefaultAttributeSet::SetEffectProperties(
         Props.SourceAvatarActor = Props.SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
         Props.SourceController = Props.SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
         
-        // if (!Props.SourceController && !Props.SourceAvatarActor) {
-        //     if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor)) {
-        //         Props.SourceController = Pawn->GetController();
-        //     }
-        // }
+        if (!Props.SourceController && !Props.SourceAvatarActor) {
+            if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor)) {
+                Props.SourceController = Pawn->GetController();
+            }
+        }
 
-        // if (Props.SourceController) {
-        //     ACharacter* SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
-        // }
+        if (Props.SourceController) {
+            Props.SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
+        }
     }
 
     if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid()) {

@@ -14,11 +14,13 @@
 #include "Interaction/EnemyInterface.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "GameFramework/Character.h"
 
 
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 ADefaultPlayerController::ADefaultPlayerController() {
     bReplicates = true;
@@ -237,5 +239,16 @@ void ADefaultPlayerController::ShiftPressed() {
 
 void ADefaultPlayerController::ShiftReleased() {
     bShiftKeyDown = false;
+}
+
+void ADefaultPlayerController::ShowDamageNumber_Implementation(float Damage, ACharacter* TargetCharacter) {
+    check(DamgeTextComponentClass);
+    if (IsValid(TargetCharacter)) {
+        auto DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamgeTextComponentClass);
+        DamageText->RegisterComponent();
+        DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+        DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+        DamageText->SetDamageText(Damage);
+    }
 }
 

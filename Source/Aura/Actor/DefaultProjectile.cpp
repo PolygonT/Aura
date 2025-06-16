@@ -65,14 +65,13 @@ void ADefaultProjectile::OnSphereOverlap(
 
     if (auto TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor)) {
         // Cause Damge
-        TUniquePtr<FGameplayEffectSpecHandle> EffectSpec = 
-            GameplayAbilityUtils::ConstructEffectSpec(this, OtherActor, DamageEffectClass, 1.f);
+        // TUniquePtr<FGameplayEffectSpecHandle> EffectSpec = 
+        //     GameplayAbilityUtils::ConstructEffectSpec(this, OtherActor, DamageEffectClass, 1.f);
         
         auto ProjectileInstigator = CastChecked<ICombatInterface>(GetInstigator());
         float Damge = GameplayAbility->AbilityModifierMagnitude.GetValueAtLevel(ProjectileInstigator->GetPlayerLevel());
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(*EffectSpec, FDefaultGameplayTags::Damage, Damge);
-        TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpec->Data);
-
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, FDefaultGameplayTags::Damage, Damge);
+        TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
     }
 
     Destroy();

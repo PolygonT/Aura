@@ -20,6 +20,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     TSubclassOf<ADefaultProjectile> ProjectileClass;
 
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<UGameplayEffect> DamageEffectClass;
+
 
     // virtual void
     // ActivateAbility(const FGameplayAbilitySpecHandle Handle,

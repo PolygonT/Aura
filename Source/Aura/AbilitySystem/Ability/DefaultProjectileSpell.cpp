@@ -2,6 +2,8 @@
 
 
 #include "AbilitySystem/Ability/DefaultProjectileSpell.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Actor/DefaultProjectile.h"
 #include "Engine/World.h"
 #include "Interaction/CombatInterface.h"
@@ -46,6 +48,15 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
     Projectile->SetInstigator(AbilityInstigator);
     Projectile->GameplayAbility = this;
 
+
+    // TODO Change this code
+    UAbilitySystemComponent* SourceASC = 
+        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+
+   const FGameplayEffectSpecHandle SpecHandle = 
+        SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+
+    Projectile->DamageEffectSpecHandle = SpecHandle;
 
     Projectile->FinishSpawning(SpawnTransform);
 }

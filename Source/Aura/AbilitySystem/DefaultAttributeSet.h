@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "GameFramework/Controller.h"
 #include "DefaultAttributeSet.generated.h"
 
 class ACharacter;
@@ -29,7 +30,7 @@ struct FEffectProperties {
     TObjectPtr<AActor> SourceAvatarActor;
 
     UPROPERTY()
-    TObjectPtr<APlayerController> SourceController;
+    TObjectPtr<AController> SourceController;
 
     UPROPERTY()
     TObjectPtr<ACharacter> SourceCharacter;
@@ -41,7 +42,7 @@ struct FEffectProperties {
     TObjectPtr<AActor> TargetAvatarActor;
 
     UPROPERTY()
-    TObjectPtr<APlayerController> TargetController;
+    TObjectPtr<AController> TargetController;
 
     UPROPERTY()
     TObjectPtr<ACharacter> TargetCharacter;
@@ -203,5 +204,5 @@ public:
     //~ End Member function
 private:
   void SetEffectProperties(const FGameplayEffectModCallbackData &Data,
-                           FEffectProperties Props);
+                           FEffectProperties& Props);
 };

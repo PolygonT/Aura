@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayEffectTypes.h"
 #include "DefaultProjectile.generated.h"
 
 class USphereComponent;
@@ -27,6 +28,9 @@ public:
 
     UPROPERTY()
     TObjectPtr<UDefaultGameplayAbility> GameplayAbility;
+
+    UPROPERTY()
+    FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
 protected:
 
@@ -52,9 +56,6 @@ protected:
 
     UPROPERTY(EditAnywhere)
     TObjectPtr<USoundBase> LoopingSound;
-
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<UGameplayEffect> DamageEffectClass;
 
     bool bHit;
 

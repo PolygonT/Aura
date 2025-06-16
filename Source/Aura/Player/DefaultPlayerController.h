@@ -14,6 +14,7 @@ class UDefaultInputConfig;
 struct FGameplayTag;
 class UDefaultAbilitySystemComponent;
 class USplineComponent;
+class UDamageTextComponent;
 
 /**
  * 
@@ -25,6 +26,11 @@ class AURA_API ADefaultPlayerController : public APlayerController
 
 public:
     ADefaultPlayerController();
+
+    // ============RPC===============
+    UFUNCTION(Client, Reliable)
+    void ShowDamageNumber(float Damage, ACharacter* TargetCharacter);
+    // ==============================
 
 protected:
     virtual void BeginPlay() override;
@@ -69,8 +75,8 @@ protected:
 
     bool bShiftKeyDown = false;
 
-
-    
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UDamageTextComponent> DamgeTextComponentClass;
 
     // ==== FUNCTIONS ====
     void Move(const FInputActionValue& InputActionValue);
