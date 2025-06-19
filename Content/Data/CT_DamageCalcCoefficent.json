@@ -1,0 +1,23 @@
+[
+	{
+		"Name": "ArmorPenetrationCoefficient",
+		"1": 0.25,
+		"10": 0.19,
+		"20": 0.10,
+		"40": 0.05
+	},
+	{
+		"Name": "EffectiveArmorCoefficient",
+		"1": 0.34,
+		"10": 0.31,
+		"20": 0.28,
+		"40": 0.21
+	},
+	{
+		"Name": "CriticalHitCoefficient",
+		"1": 0.80,
+		"10": 0.75,
+		"20": 0.70,
+		"40": 0.60
+	}
+]

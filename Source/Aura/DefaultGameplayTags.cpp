@@ -4,45 +4,11 @@
 #include "DefaultGameplayTags.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameplayTagsManager.h"
+#include "UObject/ObjectPtr.h"
 
-TArray<FGameplayTag> FDefaultGameplayTags::Iter;
+FDefaultGameplayTags* FDefaultGameplayTags::SingletonManager;
 
-// Vital Attributes
-FGameplayTag FDefaultGameplayTags::Attributes_Vital_Health;
-FGameplayTag FDefaultGameplayTags::Attributes_Vital_Mana;
-
-// Primary Attributes
-FGameplayTag FDefaultGameplayTags::Attributes_Primary_Strength;
-FGameplayTag FDefaultGameplayTags::Attributes_Primary_Intelligence;
-FGameplayTag FDefaultGameplayTags::Attributes_Primary_Resilience;
-FGameplayTag FDefaultGameplayTags::Attributes_Primary_Vigor;
-
-// Secondary Attributes
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_Armor;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_ArmorPenetration;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_BlockChance;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_CriticalHitChance;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_CriticalHitDamage;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_CriticalHitResistance;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_HealthRegeneration;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_ManaRegeneration;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_MaxHealth;
-FGameplayTag FDefaultGameplayTags::Attributes_Secondary_MaxMana;
-
-// Input Tags
-
-FGameplayTag FDefaultGameplayTags::InputTags_RMB;
-FGameplayTag FDefaultGameplayTags::InputTags_LMB;
-FGameplayTag FDefaultGameplayTags::InputTags_1;
-FGameplayTag FDefaultGameplayTags::InputTags_2;
-FGameplayTag FDefaultGameplayTags::InputTags_3;
-FGameplayTag FDefaultGameplayTags::InputTags_4;
-
-FGameplayTag FDefaultGameplayTags::Damage;
-
-FGameplayTag FDefaultGameplayTags::Effect_HitReact;
-
-void FDefaultGameplayTags::InitNativeGameplayTags() {
+FDefaultGameplayTags::FDefaultGameplayTags() {
     // Vital Attributes
     Attributes_Vital_Health =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Vital.Health");
@@ -81,6 +47,15 @@ void FDefaultGameplayTags::InitNativeGameplayTags() {
     Attributes_Secondary_MaxMana =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Secondary.MaxMana", FString(""));
 
+    Attributes_Resistance_Fire =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Resistance.Fire", FString(""));
+    Attributes_Resistance_Lightning =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Resistance.Lightning", FString(""));
+    Attributes_Resistance_Arcane =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Resistance.Arcane", FString(""));
+    Attributes_Resistance_Physical =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Resistance.Physical", FString(""));
+
     // InputTags
     InputTags_RMB  =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Input.RMB", FString(""));
@@ -97,6 +72,14 @@ void FDefaultGameplayTags::InitNativeGameplayTags() {
 
     Damage =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Damge", FString(""));
+    Damage_Fire =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Damge.Fire", FString(""));
+    Damage_Lightning =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Damge.Lightning", FString(""));
+    Damage_Arcane =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Damge.Arcane", FString(""));
+    Damage_Physical =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Damge.Physical", FString(""));
 
     Effect_HitReact =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.HitReact", FString(""));
@@ -117,4 +100,23 @@ void FDefaultGameplayTags::InitNativeGameplayTags() {
     Iter.Add(Attributes_Secondary_ManaRegeneration);
     Iter.Add(Attributes_Secondary_MaxHealth);
     Iter.Add(Attributes_Secondary_MaxMana);
+    Iter.Add(Attributes_Resistance_Fire);
+    Iter.Add(Attributes_Resistance_Lightning);
+    Iter.Add(Attributes_Resistance_Arcane);
+    Iter.Add(Attributes_Resistance_Physical);
+
+    DamageTypeAndResistanceMap.Add(Damage_Fire, Attributes_Resistance_Fire);
+    DamageTypeAndResistanceMap.Add(Damage_Lightning, Attributes_Resistance_Lightning);
+    DamageTypeAndResistanceMap.Add(Damage_Arcane, Attributes_Resistance_Arcane);
+    DamageTypeAndResistanceMap.Add(Damage_Physical, Attributes_Resistance_Physical);
 }
+
+FDefaultGameplayTags &FDefaultGameplayTags::Get() {
+    if (!SingletonManager) {
+        // TODO 4 How to remove this new key
+        SingletonManager = new FDefaultGameplayTags();
+    }
+
+    return *SingletonManager;
+}
+

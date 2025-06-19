@@ -2,7 +2,9 @@
 
 
 #include "DefaultAttributeSet.h"
+#include "AbilitySystem/DefaultAbilitySystemLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Character/Enemy.h"
 #include "DefaultGameplayTags.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/Pawn.h"
@@ -16,24 +18,28 @@
 
 
 UDefaultAttributeSet::UDefaultAttributeSet() {
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Vital_Health, UDefaultAttributeSet::GetHealthAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Vital_Mana, UDefaultAttributeSet::GetManaAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Vital_Health, UDefaultAttributeSet::GetHealthAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Vital_Mana, UDefaultAttributeSet::GetManaAttribute);
 
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Primary_Strength, UDefaultAttributeSet::GetStrengthAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Primary_Resilience, UDefaultAttributeSet::GetResilienceAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Primary_Intelligence, UDefaultAttributeSet::GetIntelligenceAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Primary_Vigor, UDefaultAttributeSet::GetVigorAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Strength, UDefaultAttributeSet::GetStrengthAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Resilience, UDefaultAttributeSet::GetResilienceAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Intelligence, UDefaultAttributeSet::GetIntelligenceAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Vigor, UDefaultAttributeSet::GetVigorAttribute);
 
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_Armor                , UDefaultAttributeSet::GetArmorAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_ArmorPenetration     , UDefaultAttributeSet::GetArmorPenetrationAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_BlockChance          , UDefaultAttributeSet::GetBlockChanceAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_CriticalHitChance    , UDefaultAttributeSet::GetCriticalHitChanceAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_CriticalHitDamage    , UDefaultAttributeSet::GetCriticalHitDamageAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_CriticalHitResistance, UDefaultAttributeSet::GetCriticalHitResistanceAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_HealthRegeneration   , UDefaultAttributeSet::GetHealthRegenerationAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_ManaRegeneration     , UDefaultAttributeSet::GetManaRegenerationAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_MaxHealth            , UDefaultAttributeSet::GetMaxHealthAttribute);
-    AttributeGetMap.Add(FDefaultGameplayTags::Attributes_Secondary_MaxMana              , UDefaultAttributeSet::GetMaxManaAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_Armor                , UDefaultAttributeSet::GetArmorAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_ArmorPenetration     , UDefaultAttributeSet::GetArmorPenetrationAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_BlockChance          , UDefaultAttributeSet::GetBlockChanceAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_CriticalHitChance    , UDefaultAttributeSet::GetCriticalHitChanceAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_CriticalHitDamage    , UDefaultAttributeSet::GetCriticalHitDamageAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_CriticalHitResistance, UDefaultAttributeSet::GetCriticalHitResistanceAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_HealthRegeneration   , UDefaultAttributeSet::GetHealthRegenerationAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_ManaRegeneration     , UDefaultAttributeSet::GetManaRegenerationAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_MaxHealth            , UDefaultAttributeSet::GetMaxHealthAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_MaxMana              , UDefaultAttributeSet::GetMaxManaAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Resistance_Fire                , UDefaultAttributeSet::GetResistanceFireAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Resistance_Lightning           , UDefaultAttributeSet::GetResistanceLightningAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Resistance_Arcane              , UDefaultAttributeSet::GetResistanceArcaneAttribute);
+    AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Resistance_Physical            , UDefaultAttributeSet::GetResistancePhysicalAttribute);
 }
 
 void UDefaultAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -56,6 +62,10 @@ void UDefaultAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+    DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, ResistanceFire, COND_None, REPNOTIFY_Always);
+    DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, ResistanceLightning, COND_None, REPNOTIFY_Always);
+    DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, ResistanceArcane, COND_None, REPNOTIFY_Always);
+    DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, ResistancePhysical, COND_None, REPNOTIFY_Always);
 }
 
 void UDefaultAttributeSet::PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue) {
@@ -104,14 +114,24 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
             } else {
 
                 // Hit React
-                FGameplayTagContainer TagContainer { FDefaultGameplayTags::Effect_HitReact };
+                FGameplayTagContainer TagContainer { FDefaultGameplayTags::Get().Effect_HitReact };
                 Props.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
             }
 
             // float damage text
+            const bool bBlockedHit = UDefaultAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+            const bool bCriticalHit = UDefaultAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+
             if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(
                     UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0))) {
-                DefaultPlayerController->ShowDamageNumber(LocalIncomingDamge, Props.TargetCharacter);
+                DefaultPlayerController->ShowDamageNumber(LocalIncomingDamge, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+            }
+
+            // health bar critical hit anim
+            if (bCriticalHit) {
+                if (AEnemy* Enemy = Cast<AEnemy>(Props.TargetCharacter)) {
+                    Enemy->CriticalHitEvent();
+                }
             }
         }
 
@@ -215,3 +235,18 @@ void UDefaultAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData O
     GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ManaRegeneration, OldManaRegeneration);
 }
 
+void UDefaultAttributeSet::OnRep_ResistanceFire(const FGameplayAttributeData OldResistanceFire) const {
+    GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ResistanceFire, OldResistanceFire);
+}
+
+void UDefaultAttributeSet::OnRep_ResistanceLightning(const FGameplayAttributeData OldResistanceLightning) const {
+    GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ResistanceLightning, OldResistanceLightning);
+}
+
+void UDefaultAttributeSet::OnRep_ResistanceArcane(const FGameplayAttributeData OldResistanceArcane) const {
+    GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ResistanceArcane, OldResistanceArcane);
+}
+
+void UDefaultAttributeSet::OnRep_ResistancePhysical(const FGameplayAttributeData OldResistancePhysical) const {
+    GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, ResistancePhysical, OldResistancePhysical);
+}

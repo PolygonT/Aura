@@ -166,7 +166,7 @@ void ADefaultPlayerController::AbilityInputTagPressed(const FInputActionValue &v
 void ADefaultPlayerController::AbilityInputTagReleased(const FInputActionValue &value, const FGameplayTag Tag) {
     if (!GetASC()) return;
 
-    if (!Tag.MatchesTagExact(FDefaultGameplayTags::InputTags_LMB)) {
+    if (!Tag.MatchesTagExact(FDefaultGameplayTags::Get().InputTags_LMB)) {
         GetASC()->AbilityInputTagReleased(Tag);
         return;
     }
@@ -206,7 +206,7 @@ void ADefaultPlayerController::AbilityInputTagReleased(const FInputActionValue &
 void ADefaultPlayerController::AbilityInputTagHeld(const FInputActionValue &value, const FGameplayTag Tag) {
     if (!GetASC()) return;
 
-    if (!Tag.MatchesTagExact(FDefaultGameplayTags::InputTags_LMB) || bTargeting || bShiftKeyDown) {
+    if (!Tag.MatchesTagExact(FDefaultGameplayTags::Get().InputTags_LMB) || bTargeting || bShiftKeyDown) {
         GetASC()->AbilityInputTagHeld(Tag);
         return;
     }
@@ -241,14 +241,14 @@ void ADefaultPlayerController::ShiftReleased() {
     bShiftKeyDown = false;
 }
 
-void ADefaultPlayerController::ShowDamageNumber_Implementation(float Damage, ACharacter* TargetCharacter) {
+void ADefaultPlayerController::ShowDamageNumber_Implementation(float Damage, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit) {
     check(DamgeTextComponentClass);
     if (IsValid(TargetCharacter)) {
         auto DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamgeTextComponentClass);
         DamageText->RegisterComponent();
         DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
         DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-        DamageText->SetDamageText(Damage);
+        DamageText->SetDamageText(Damage, bBlockedHit, bCriticalHit);
     }
 }
 

@@ -26,7 +26,7 @@ UAttributeInfo::FindAttributeInfoByTag(const FGameplayTag &AttributeTag,
 }
 
 void UAttributeInfo::InitAttributeInfoMap() {
-    for (const FGameplayTag& Tag : FDefaultGameplayTags::Iter) {
+    for (const FGameplayTag& Tag : FDefaultGameplayTags::Get().Iter) {
 
         FDefaultAttributeInfo Info { 
             Tag,

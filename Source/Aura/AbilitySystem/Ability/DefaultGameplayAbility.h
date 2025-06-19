@@ -19,8 +19,6 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Abilities")
     FGameplayTag AbilityTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modifiers")
-    FScalableFloat AbilityModifierMagnitude;
 
 protected:
 

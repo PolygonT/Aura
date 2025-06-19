@@ -26,7 +26,7 @@ public:
     virtual void UnHighlightActor() override;
 
     // ==== Combat Interface ====
-    virtual int32 GetPlayerLevel() override;
+    virtual int32 GetPlayerLevel() const override;
 
     virtual void Die() override;
 
@@ -47,6 +47,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     float BaseWalkSpped { 250.f };
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void CriticalHitEvent();
 
 protected:
     virtual void BeginPlay() override;

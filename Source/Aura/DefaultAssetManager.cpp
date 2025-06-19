@@ -16,7 +16,7 @@ UDefaultAssetManager &UDefaultAssetManager::Get() {
 void UDefaultAssetManager::StartInitialLoading() {
     Super::StartInitialLoading();
 
-    FDefaultGameplayTags::InitNativeGameplayTags();
+    // FDefaultGameplayTags::InitNativeGameplayTags();
 
     // This is required to use Target Data
     UAbilitySystemGlobals::Get().InitGlobalData();

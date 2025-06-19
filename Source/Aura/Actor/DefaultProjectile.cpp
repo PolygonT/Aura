@@ -48,11 +48,11 @@ void ADefaultProjectile::BeginPlay()
 }
 
 void ADefaultProjectile::Destroyed() {
-    // if (!bHit && !HasAuthority()) {
-    //     UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-    //     UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-    // }
-    //
+    if (!bHit && !HasAuthority()) {
+        UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+    }
+
     Super::Destroyed();
 }
 
@@ -68,17 +68,13 @@ void ADefaultProjectile::OnSphereOverlap(
         // TUniquePtr<FGameplayEffectSpecHandle> EffectSpec = 
         //     GameplayAbilityUtils::ConstructEffectSpec(this, OtherActor, DamageEffectClass, 1.f);
         
-        auto ProjectileInstigator = CastChecked<ICombatInterface>(GetInstigator());
-        float Damge = GameplayAbility->AbilityModifierMagnitude.GetValueAtLevel(ProjectileInstigator->GetPlayerLevel());
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, FDefaultGameplayTags::Damage, Damge);
         TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
     }
 
-    Destroy();
-    // if (HasAuthority()) {
-    //     Destroy();
-    // } else {
-    //     bHit = true;
-    // }
+    if (HasAuthority()) {
+        Destroy();
+    } else {
+        bHit = true;
+    }
 }
 

@@ -2,7 +2,9 @@
 
 
 #include "AbilitySystem/DefaultAbilitySystemLibrary.h"
+#include "DefaultAbilityTypes.h"
 #include "Game/DefaultGameModeBase.h"
+#include "GameplayEffectTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/DefaultPlayerState.h"
 #include "UI/HUD/DefaultHUD.h"
@@ -72,3 +74,65 @@ UDefaultAbilitySystemLibrary::GetAttributeMenuWidgetController(
 //     auto ClassInfo = GameMode->CharacterClassInfo;
 //     auto ClassDefaultInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
 // }
+
+UCharacterClassInfo *UDefaultAbilitySystemLibrary::GetCharacterClassInfo(
+    const UObject *WorldContextObject) {
+    auto GameMode = Cast<ADefaultGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+
+    if (!GameMode) {
+        return nullptr;
+    }
+
+    return GameMode->CharacterClassInfo;
+}
+
+bool UDefaultAbilitySystemLibrary::IsBlockedHit(
+    const FGameplayEffectContextHandle &ContextHandle) {
+
+    if (const FDefaultGameplayEffectContext* DefaultContext = GetDefaultContext(ContextHandle)) {
+        return DefaultContext->IsBlockedHit();
+    }
+
+    return false;
+
+}
+
+bool UDefaultAbilitySystemLibrary::IsCriticalHit(
+    const FGameplayEffectContextHandle &ContextHandle) {
+
+    if (const FDefaultGameplayEffectContext* DefaultContext = GetDefaultContext(ContextHandle)) {
+        return DefaultContext->IsCriticalHit();
+    }
+
+    return false;
+}
+
+void UDefaultAbilitySystemLibrary::SetIsBlockedHit(
+    FGameplayEffectContextHandle &ContextHandle, bool bInIsBlockedHit) {
+
+    if (FDefaultGameplayEffectContext* DefaultContext = GetDefaultContextNonConst(ContextHandle)) {
+        DefaultContext->SetIsBlockedHit(bInIsBlockedHit);
+    }
+}
+
+void UDefaultAbilitySystemLibrary::SetIsCriticalHit(
+    FGameplayEffectContextHandle &ContextHandle, bool bInIsCriticalHit) {
+
+    if (FDefaultGameplayEffectContext* DefaultContext = GetDefaultContextNonConst(ContextHandle)) {
+        DefaultContext->SetIsCriticalHit(bInIsCriticalHit);
+    }
+}
+
+const FDefaultGameplayEffectContext*
+UDefaultAbilitySystemLibrary::GetDefaultContext(
+    const FGameplayEffectContextHandle &ContextHandle) {
+
+    return static_cast<const FDefaultGameplayEffectContext*>(ContextHandle.Get());
+}
+
+FDefaultGameplayEffectContext *
+UDefaultAbilitySystemLibrary::GetDefaultContextNonConst(
+    FGameplayEffectContextHandle &ContextHandle) {
+
+    return static_cast<FDefaultGameplayEffectContext*>(ContextHandle.Get());
+}

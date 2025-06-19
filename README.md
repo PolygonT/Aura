@@ -12,6 +12,7 @@
 - [ ] blueprint pure? 没有执行pin的方法，没有副作用（不会改变任何对象的状态），还隐式的包含了BlueprintCallable
 - [ ] APlayerController是AController的子类，为什么不能用AController接受APlayerController
 - [ ] BUG 火球Destroy时触碰角色触碰到，可能先overlap了，overlap代码执行过程中火球已经销毁了？
+- [ ] TODO 4 How to remove this new key
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate

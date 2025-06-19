@@ -56,7 +56,7 @@ void AEnemy::BeginPlay() {
     }
 
     // Register Gameplay Tag Event (Hit React)
-    AbilitySystemComponent->RegisterGameplayTagEvent(FDefaultGameplayTags::Effect_HitReact, EGameplayTagEventType::NewOrRemoved)
+    AbilitySystemComponent->RegisterGameplayTagEvent(FDefaultGameplayTags::Get().Effect_HitReact, EGameplayTagEventType::NewOrRemoved)
         .AddLambda([this] (const FGameplayTag GameplayTag, int32 NewCount) {
             bHitReacting = NewCount > 0;
             GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpped;
@@ -89,7 +89,7 @@ void AEnemy::InitAbilityActorInfo() {
     InitVitalAttributes();
 }
 
-int32 AEnemy::GetPlayerLevel() {
+int32 AEnemy::GetPlayerLevel() const {
     return PlayerLevel;
 }
 

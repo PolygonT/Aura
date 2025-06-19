@@ -57,7 +57,7 @@ void ADerivedAura::InitAbilityActorInfo() {
     InitVitalAttributes();
 }
 
-int32 ADerivedAura::GetPlayerLevel() {
+int32 ADerivedAura::GetPlayerLevel() const {
     auto DefaultPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
     return DefaultPlayerState->GetPlayerLevel();
 }

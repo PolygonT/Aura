@@ -45,7 +45,7 @@ public:
 
     void InitAttributeInfoMap();
 
-    // UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TMap<FGameplayTag, FDefaultAttributeInfo> AttributeInfoMap;
 
 };

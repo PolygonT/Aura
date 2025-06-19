@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Actor/DefaultProjectile.h"
+#include "DefaultGameplayTags.h"
 #include "Engine/World.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -48,13 +49,18 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
     Projectile->SetInstigator(AbilityInstigator);
     Projectile->GameplayAbility = this;
 
-
-    // TODO Change this code
     UAbilitySystemComponent* SourceASC = 
         UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 
    const FGameplayEffectSpecHandle SpecHandle = 
         SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+
+
+    // Assign Set By Caller
+    for (auto& Pair : DamageTypesMap) {
+        const float ScaledDamage = Pair.Value.GetValueAtLevel(CombatInterface->GetPlayerLevel());
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Pair.Key, ScaledDamage);
+    }
 
     Projectile->DamageEffectSpecHandle = SpecHandle;
 
