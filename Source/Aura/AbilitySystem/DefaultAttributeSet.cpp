@@ -122,17 +122,18 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
             const bool bBlockedHit = UDefaultAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
             const bool bCriticalHit = UDefaultAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 
-            if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(
-                    UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0))) {
+            if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(Props.SourceCharacter->GetController())) {
                 DefaultPlayerController->ShowDamageNumber(LocalIncomingDamge, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+            } else if (auto TargetPlayerController = Cast<ADefaultPlayerController>(Props.TargetCharacter->GetController())) {
+                TargetPlayerController->ShowDamageNumber(LocalIncomingDamge, Props.TargetCharacter, bBlockedHit, bCriticalHit);
             }
 
             // health bar critical hit anim
-            if (bCriticalHit) {
-                if (AEnemy* Enemy = Cast<AEnemy>(Props.TargetCharacter)) {
-                    Enemy->CriticalHitEvent();
-                }
-            }
+            // if (bCriticalHit) {
+            //     if (AEnemy* Enemy = Cast<AEnemy>(Props.TargetCharacter)) {
+            //         Enemy->CriticalHitEvent();
+            //     }
+            // }
         }
 
     }
@@ -151,7 +152,7 @@ void UDefaultAttributeSet::SetEffectProperties(
         Props.SourceAvatarActor = Props.SourceAbilitySystemComponent->AbilityActorInfo->AvatarActor.Get();
         Props.SourceController = Props.SourceAbilitySystemComponent->AbilityActorInfo->PlayerController.Get();
         
-        if (!Props.SourceController && !Props.SourceAvatarActor) {
+        if (!Props.SourceController && Props.SourceAvatarActor) {
             if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor)) {
                 Props.SourceController = Pawn->GetController();
             }

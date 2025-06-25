@@ -70,5 +70,11 @@ struct FDefaultGameplayTags {
 
     FGameplayTag Effect_HitReact;
 
+    FGameplayTag Ability_Enemy_Melee;
+
+    FGameplayTag Montage_Attack_Weapon;
+    FGameplayTag Montage_Attack_RightHand;
+    FGameplayTag Montage_Attack_LeftHand;
+
 };
 

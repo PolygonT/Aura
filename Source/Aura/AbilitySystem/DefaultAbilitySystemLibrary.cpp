@@ -2,9 +2,15 @@
 
 
 #include "AbilitySystem/DefaultAbilitySystemLibrary.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
 #include "DefaultAbilityTypes.h"
+#include "Engine/Engine.h"
+#include "Engine/OverlapResult.h"
+#include "Engine/World.h"
 #include "Game/DefaultGameModeBase.h"
 #include "GameplayEffectTypes.h"
+#include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/DefaultPlayerState.h"
 #include "UI/HUD/DefaultHUD.h"
@@ -135,4 +141,37 @@ UDefaultAbilitySystemLibrary::GetDefaultContextNonConst(
     FGameplayEffectContextHandle &ContextHandle) {
 
     return static_cast<FDefaultGameplayEffectContext*>(ContextHandle.Get());
+}
+
+void UDefaultAbilitySystemLibrary::GetLivePlayersWithinRadius(
+    const UObject *WorldContextObject, TArray<AActor *> &OutOverlappingActors,
+    const TArray<AActor *> &ActorsToIgnore, float Radius,
+    const FVector &SphereOrigin) {
+
+    FCollisionQueryParams SphereParams {};
+
+    if (ActorsToIgnore.Num() > 0) {
+        SphereParams.AddIgnoredActors(ActorsToIgnore);
+    }
+
+    TArray<FOverlapResult> Overlaps;
+
+    if (const UWorld* World = 
+        GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull)) {
+        World->OverlapMultiByObjectType(
+            Overlaps, SphereOrigin, FQuat::Identity,
+            FCollisionObjectQueryParams{
+                FCollisionObjectQueryParams::InitType::AllDynamicObjects},
+            FCollisionShape::MakeSphere(Radius), SphereParams);
+
+        for (const FOverlapResult &Overlap : Overlaps) {
+            AActor *Actor = Overlap.GetActor();
+            if (Actor->Implements<UCombatInterface>() &&
+                !ICombatInterface::Execute_IsDead(Actor)) {
+                OutOverlappingActors.AddUnique(ICombatInterface::Execute_GetAvtar(Actor));
+            }
+        }
+    }
+
+
 }

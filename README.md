@@ -13,6 +13,8 @@
 - [ ] APlayerController是AController的子类，为什么不能用AController接受APlayerController
 - [ ] BUG 火球Destroy时触碰角色触碰到，可能先overlap了，overlap代码执行过程中火球已经销毁了？
 - [ ] TODO 4 How to remove this new key
+- [ ] BUG 客户端发火球，如果主角和敌人隔得太近，火球在服务器生成-销毁过快，客户端没有得到火球的overlap和Destroy执行
+- [ ] TODO 5 这里的Replicate是否合适，是为了修复客户端敌人死后血条往下掉的BUG加上的
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate
@@ -29,6 +31,12 @@
  - GameplayEffect
  - GameplayAbility
  - AbilityTask
+
+- blendspace player, 相当于一个占位符，可以在子类中设置
+- call a blueprint native event, Execute_XXX(TargetObj), require for TargetObj is because native event is a static function
+```c++
+ICombatInterface::Execute_GetCombatSocketLocationExecute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
+```
 
 ## PLUS
 - 虚血条插值

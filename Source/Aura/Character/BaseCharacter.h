@@ -4,6 +4,7 @@
 
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystemInterface.h"
+#include "Containers/Map.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
@@ -15,6 +16,14 @@ class UGameplayEffect;
 class UGameplayAbility;
 class UMaterialInstance;
 class UMaterialInstanceDynamic;
+
+USTRUCT(BlueprintType)
+struct FSpecializedAbilityInfo {
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, Category = "Abilities")
+    TArray<TSubclassOf<UGameplayAbility>> Abilities;
+};
 
 UCLASS(Abstract)
 class AURA_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -32,6 +41,14 @@ public:
     virtual UAnimMontage *GetHitReactMontage_Implementation() override;
 
     virtual void Die() override;
+
+    virtual FVector GetCombatSocketLocation_Implementation() override;
+
+    virtual bool IsDead_Implementation() const override;
+
+    virtual AActor *GetAvtar_Implementation() override;
+
+    // =============== Combat Interface ===================
     
     UFUNCTION(NetMulticast, Reliable)
     virtual void MulticastHandleDealth();
@@ -71,7 +88,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
 
-    virtual FVector GetCombatSocketLocation() override;
+    bool bDead { false };
+
 
     virtual void InitAbilityActorInfo();
 
@@ -89,6 +107,9 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Abilities")
     TArray<TSubclassOf<UGameplayAbility>> NormalAbilities;
+
+    UPROPERTY(EditAnywhere, Category = "Abilities")
+    TMap<ECharacterClass, FSpecializedAbilityInfo> SpecializedAbilities;
     //
     // UPROPERTY(EditAnywhere, Category = "Abilities")
     // TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;

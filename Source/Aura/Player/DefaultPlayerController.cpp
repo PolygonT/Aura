@@ -4,6 +4,7 @@
 #include "DefaultPlayerController.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Character/Enemy.h"
 #include "Components/SplineComponent.h"
 #include "DefaultGameplayTags.h"
 #include "DrawDebugHelpers.h"
@@ -249,6 +250,13 @@ void ADefaultPlayerController::ShowDamageNumber_Implementation(float Damage, ACh
         DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
         DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
         DamageText->SetDamageText(Damage, bBlockedHit, bCriticalHit);
+    }
+
+    // health bar critical hit anim
+    if (bCriticalHit) {
+        if (AEnemy* Enemy = Cast<AEnemy>(TargetCharacter)) {
+            Enemy->CriticalHitEvent();
+        }
     }
 }
 

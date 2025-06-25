@@ -56,6 +56,13 @@ public:
     SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle &ContextHandle,
                      bool bInIsCriticalHit);
 
+    UFUNCTION(BlueprintCallable, Category = "AbilitySystemLibarary|GameplayMechanics")
+    static void
+    GetLivePlayersWithinRadius(const UObject *WorldContextObject,
+                               TArray<AActor *> &OutOverlappingActors,
+                               const TArray<AActor *> &ActorsToIgnore,
+                               float Radius, const FVector &SphereOrigin);
+
   private:
     static const FDefaultGameplayEffectContext*
     GetDefaultContext(const FGameplayEffectContextHandle &ContextHandle);

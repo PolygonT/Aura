@@ -26,7 +26,8 @@ class AURA_API ICombatInterface
 public:
     virtual int32 GetPlayerLevel() const;
 
-    virtual FVector GetCombatSocketLocation();
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    FVector GetCombatSocketLocation();
 
     // Blueprint implement event can't not be virtual ?
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -40,4 +41,10 @@ public:
     UAnimMontage *GetHitReactMontage();
 
     virtual void Die() = 0;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    bool IsDead() const;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    AActor* GetAvtar();
 };

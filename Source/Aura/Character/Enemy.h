@@ -9,6 +9,8 @@
 #include "Enemy.generated.h"
 
 class UWidgetComponent;
+class UBehaviorTree;
+class ADefaultAIController;
 
 /**
  * 
@@ -24,6 +26,11 @@ public:
     // ==== Enemy Interface ====
     virtual void HighlightActor() override;
     virtual void UnHighlightActor() override;
+
+    virtual void
+    SetCombatTarget_Implementation(AActor *InCombatTarget) override;
+
+    virtual AActor *GetCombatTarget_Implementation() const override;
 
     // ==== Combat Interface ====
     virtual int32 GetPlayerLevel() const override;
@@ -48,10 +55,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     float BaseWalkSpped { 250.f };
 
+    UPROPERTY(BlueprintReadOnly, Category = "Combat")
+    TObjectPtr<AActor> CombatTarget;
+
     UFUNCTION(BlueprintImplementableEvent)
     void CriticalHitEvent();
 
-protected:
+    virtual void PossessedBy(AController *NewController) override;
+
+    void HitReact(const FGameplayTag GameplayTag, int32 NewCount);
+
+  protected:
     virtual void BeginPlay() override;
 
     virtual void InitAbilityActorInfo() override;
@@ -61,6 +75,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UWidgetComponent> HealthBar;
+
+    UPROPERTY(EditAnywhere, Category = "AI")
+    TObjectPtr<UBehaviorTree> BehaviorTree;
+
+    UPROPERTY()
+    TObjectPtr<ADefaultAIController> DefaultAIController;
 
 };
 

@@ -30,11 +30,11 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
     APawn* AbilityInstigator = Cast<APawn>(GetAvatarActorFromActorInfo());
     ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo());
 
-    if (!CombatInterface || !AbilityInstigator) {
+    if (!AbilityInstigator) {
         return;
     }
 
-    const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+    const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
     FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
     Rotation.Pitch = 0.f;
 

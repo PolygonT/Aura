@@ -84,6 +84,16 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
     Effect_HitReact =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.HitReact", FString(""));
 
+    Ability_Enemy_Melee =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Melee", FString(""));
+
+    Montage_Attack_Weapon =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.Weapon", FString(""));
+    Montage_Attack_RightHand =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.RightHand", FString(""));
+    Montage_Attack_LeftHand =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.LeftHand", FString(""));
+
     Iter.Add(Attributes_Vital_Health);
     Iter.Add(Attributes_Vital_Mana);
     Iter.Add(Attributes_Primary_Strength);

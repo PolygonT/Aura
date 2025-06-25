@@ -74,9 +74,13 @@ void ABaseCharacter::AddCharactorAbilities() {
     auto DefaultAbilitySystemComponent = CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent);
     DefaultAbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
     DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(NormalAbilities);
+    if (SpecializedAbilities.Contains(CharacterClass)) {
+        FSpecializedAbilityInfo SpecializedAbilitiesInfo = SpecializedAbilities[CharacterClass];
+        DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(SpecializedAbilitiesInfo.Abilities);
+    }
 }
 
-FVector ABaseCharacter::GetCombatSocketLocation() {
+FVector ABaseCharacter::GetCombatSocketLocation_Implementation() {
     return Weapon->GetSocketLocation(WeaponTipSocketName);
 }
 
@@ -103,6 +107,8 @@ void ABaseCharacter::MulticastHandleDealth_Implementation() {
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     Dissolve();
+
+    bDead = true;
 }
 
 void ABaseCharacter::Dissolve() {
@@ -127,3 +133,10 @@ void ABaseCharacter::Dissolve() {
     }
 }
 
+bool ABaseCharacter::IsDead_Implementation() const {
+    return bDead;
+}
+
+AActor *ABaseCharacter::GetAvtar_Implementation() {
+    return this;
+}

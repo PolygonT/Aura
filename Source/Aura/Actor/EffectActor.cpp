@@ -20,6 +20,9 @@ void AEffectActor::BeginPlay()
 }
 
 void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass) {
+    if (TargetActor->ActorHasTag("Enemy") && !bApplyEffectsToEnemies) {
+        return;
+    }
     // TODO 1: USE EffectSpecOpt.GetPtrOrNull() will cause a crash, don't known why
     auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(this, TargetActor, GamePlayEffectClass, EffectLevel);
     if (!EffectSpec) return;
@@ -46,6 +49,10 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
             }
         default:
             break;
+    }
+
+    if (DurationPolicy != EGameplayEffectDurationType::Infinite) {
+        Destroy();
     }
 }
 
