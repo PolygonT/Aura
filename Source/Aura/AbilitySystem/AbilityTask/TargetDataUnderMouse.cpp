@@ -74,6 +74,7 @@ void UTargetDataUnderMouse::SendMouseCursorData() {
         AbilitySystemComponent->ScopedPredictionKey
     );
 
+    // 确保ability active，没有被取消
     if (ShouldBroadcastAbilityTaskDelegates()) {
         ValidData.Broadcast(DataHandle);
     }

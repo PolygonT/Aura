@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "AbilitySystemComponent.h"
+#include "DefaultGameplayTags.h"
 #include "Engine/EngineTypes.h"
 #include "Utils/GameplayAbilityUtils.h"
 #include "Materials/MaterialInstance.h"
@@ -66,6 +67,10 @@ void ABaseCharacter::InitVitalAttributes() {
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
+void ABaseCharacter::AddCharactorGameplayCues() {
+    GetAbilitySystemComponent()->AddGameplayCue_MinimalReplication(FDefaultGameplayTags::Get().GameplayCue_Test);
+}
+
 void ABaseCharacter::AddCharactorAbilities() {
     if (!HasAuthority()) {
         return;
@@ -80,8 +85,23 @@ void ABaseCharacter::AddCharactorAbilities() {
     }
 }
 
-FVector ABaseCharacter::GetCombatSocketLocation_Implementation() {
-    return Weapon->GetSocketLocation(WeaponTipSocketName);
+FVector ABaseCharacter::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) {
+
+    if (MontageTag.MatchesTagExact(FDefaultGameplayTags::Get().Montage_Attack_Weapon)) {
+
+        check(Weapon);
+        return Weapon->GetSocketLocation(WeaponTipSocketName);
+    } else if (MontageTag.MatchesTagExact(FDefaultGameplayTags::Get().Montage_Attack_LeftHand)) {
+
+        return GetMesh()->GetSocketLocation(LeftHandSocketName);
+    } else if (MontageTag.MatchesTagExact(FDefaultGameplayTags::Get().Montage_Attack_RightHand)) {
+
+        return GetMesh()->GetSocketLocation(RightHandSocketName);
+    } else {
+        checkf(false, TEXT("invalid MontageTag as Input Param"));
+        // !not reachable!
+        return {};
+    }
 }
 
 UAnimMontage *ABaseCharacter::GetHitReactMontage_Implementation() {
@@ -112,23 +132,25 @@ void ABaseCharacter::MulticastHandleDealth_Implementation() {
 }
 
 void ABaseCharacter::Dissolve() {
-    if (IsValid(DissolveMaterialInstance) && IsValid(WeaponDissolveMaterialInstance)) {
-        
-        TArray<UMaterialInstanceDynamic*> arr {}; 
+    TArray<UMaterialInstanceDynamic*> arr {}; 
+    if (IsValid(DissolveMaterialInstance)) {
 
         UMaterialInstanceDynamic* DynamicMatInst = 
             UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
         GetMesh()->SetMaterial(0, DynamicMatInst);
 
+        arr.Add(DynamicMatInst);
+    }
+    if (IsValid(WeaponDissolveMaterialInstance)) {
         UMaterialInstanceDynamic* WeaponDynamicMatInst = 
             UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
 
-        GetMesh()->SetMaterial(0, DynamicMatInst);
         Weapon->SetMaterial(0, WeaponDynamicMatInst);
-
-        arr.Add(DynamicMatInst);
         arr.Add(WeaponDynamicMatInst);
 
+    }
+
+    if (arr.Num() > 0) {
         StartDissolveTimeline(arr);
     }
 }
@@ -140,3 +162,13 @@ bool ABaseCharacter::IsDead_Implementation() const {
 AActor *ABaseCharacter::GetAvtar_Implementation() {
     return this;
 }
+
+TArray<FTaggedMontage> ABaseCharacter::GetAttackMontages_Implementation() {
+    return AttackMontages;
+}
+
+UNiagaraSystem *ABaseCharacter::GetBloodEffect_Implementation() {
+    return BloodEffect;
+}
+
+

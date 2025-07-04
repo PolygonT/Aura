@@ -86,6 +86,12 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
 
     Ability_Enemy_Melee =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Melee", FString(""));
+    Ability_Enemy_Range =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Range", FString(""));
+    Ability_Enemy_Attack =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Attack", FString(""));
+    Ability_Pickup_EffectActor =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Pickup.EffectActor", FString(""));
 
     Montage_Attack_Weapon =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.Weapon", FString(""));
@@ -93,6 +99,14 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.RightHand", FString(""));
     Montage_Attack_LeftHand =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.LeftHand", FString(""));
+
+    Cooldown_Fire_FireBolt =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Cooldown.Fire.FireBolt", FString(""));
+
+    GameplayCue_RangeImpact =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("GameplayCue.RangeImpact", FString(""));
+    GameplayCue_Test =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("GameplayCue.TestCCCCUE", FString(""));
 
     Iter.Add(Attributes_Vital_Health);
     Iter.Add(Attributes_Vital_Mana);

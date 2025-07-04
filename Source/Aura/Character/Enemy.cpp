@@ -41,6 +41,7 @@ void AEnemy::BeginPlay() {
     GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpped;
     InitAbilityActorInfo();
     AddCharactorAbilities();
+    AddCharactorGameplayCues();
 
     // Set Widget Controller
     
@@ -109,10 +110,12 @@ int32 AEnemy::GetPlayerLevel() const {
 }
 
 void AEnemy::Die() {
-    Super::Die();
-
     HealthBar->SetVisibility(false);
+    DefaultAIController->GetBlackboardComponent()->SetValueAsBool("Dead", true);
+
     SetLifeSpan(5.f);
+
+    Super::Die();
 }
 
 void AEnemy::PossessedBy(AController *NewController) {

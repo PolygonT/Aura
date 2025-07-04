@@ -29,6 +29,7 @@ void ADerivedAura::PossessedBy(AController *NewController) {
     // Init Ability actor info for the Server
     InitAbilityActorInfo();
     AddCharactorAbilities();
+    // AddCharactorGameplayCues();
 }
 
 void ADerivedAura::OnRep_PlayerState() {

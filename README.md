@@ -15,15 +15,26 @@
 - [ ] TODO 4 How to remove this new key
 - [ ] BUG 客户端发火球，如果主角和敌人隔得太近，火球在服务器生成-销毁过快，客户端没有得到火球的overlap和Destroy执行
 - [ ] TODO 5 这里的Replicate是否合适，是为了修复客户端敌人死后血条往下掉的BUG加上的
+- [ ] TODO 6 不返回引用会造成额外复制，但返回引用会闪退，非法内存访问
+- [ ] 点脚下发射火球时，motion warping有点问题，应该以人物为原点向点的方向旋转
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate
 ![](assets/2025-05-28-14-54-28.png)
 - [ ] PreAttributesChange Only Change the Current Value of the FGameplayAttributeData?
+- [ ] TObjectPtr有什么好处？
+- [ ] diff between MMC and Exec_Calc
+- [ ] cancel ability with tag
+- [ ] gameplay cue?
+- [ ] diff between pawn and character
+- [ ] GE中填GameplayCue无法Replicate，可能是虚幻版本问题？而且添加了之后第一次启动游戏触发GE会卡顿
 
 ## Editor Skill
 - GA，Instance PerActor，每个Actor只会有一个GA创建
 ![](assets/2025-06-11-23-22-22.png)
+- 避免AI角色互相拥挤 (没有strafe blend space的话，角色漂移看起来会不正常)
+![](assets/2025-06-26-20-08-15.png)
+
 
 ## NOTE
 - GAS
@@ -37,6 +48,12 @@
 ```c++
 ICombatInterface::Execute_GetCombatSocketLocationExecute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
 ```
+- UFUNCTION不支持template function
+- TMap中不能包含TArray，只能定义一个Struct，Struct中包含Array
+- Socket可以用于:
+    - attach武器
+    - anim montage中timed niagara effect需要socket（eg：攻击trail）
+- AbilitySystemComponent->RegisterGameplayTagEvent (eg: Register Gameplay Tag Event (Hit React))
 
 ## PLUS
 - 虚血条插值

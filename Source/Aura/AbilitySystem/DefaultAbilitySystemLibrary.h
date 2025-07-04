@@ -11,6 +11,7 @@ class UOverlayWidgetController;
 class UAttributeMenuWidgetController;
 struct FGameplayEffectContextHandle;
 struct FDefaultGameplayEffectContext;
+struct FTaggedMontage;
 
 /**
  * 
@@ -62,6 +63,9 @@ public:
                                TArray<AActor *> &OutOverlappingActors,
                                const TArray<AActor *> &ActorsToIgnore,
                                float Radius, const FVector &SphereOrigin);
+
+    UFUNCTION(BlueprintCallable, Category = "AbilitySystemLibarary|CollectionUtils")
+    static FTaggedMontage GetRandomElementOfTagArr(TArray<FTaggedMontage> arr);
 
   private:
     static const FDefaultGameplayEffectContext*

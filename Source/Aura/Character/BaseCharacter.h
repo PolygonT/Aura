@@ -39,14 +39,12 @@ public:
 
     // =============== Combat Interface ===================
     virtual UAnimMontage *GetHitReactMontage_Implementation() override;
-
     virtual void Die() override;
-
-    virtual FVector GetCombatSocketLocation_Implementation() override;
-
+    virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
     virtual bool IsDead_Implementation() const override;
-
     virtual AActor *GetAvtar_Implementation() override;
+    virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+    virtual UNiagaraSystem *GetBloodEffect_Implementation() override;
 
     // =============== Combat Interface ===================
     
@@ -58,10 +56,13 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void StartDissolveTimeline(const TArray<UMaterialInstanceDynamic*>& MaterialInstance);
 
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    TArray<FTaggedMontage> AttackMontages;
+
 protected:
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditAnywhere, Category = "Combat")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     TObjectPtr<USkeletalMeshComponent> Weapon;
 
     UPROPERTY()
@@ -79,8 +80,14 @@ protected:
     // UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes")
     // TSubclassOf<UGameplayEffect> DefaultVitalAttributesEffect;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = "Combat")
     FName WeaponTipSocketName;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    FName LeftHandSocketName;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    FName RightHandSocketName;
 
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     ECharacterClass CharacterClass;
@@ -100,6 +107,8 @@ protected:
     void InitVitalAttributes();
 
     void AddCharactorAbilities();
+
+    void AddCharactorGameplayCues();
 
 private:
     UPROPERTY(EditAnywhere, Category = "Abilities")
@@ -122,4 +131,7 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    TObjectPtr<UNiagaraSystem> BloodEffect;
 };

@@ -3,16 +3,21 @@
 
 #include "Actor/DefaultProjectile.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemGlobals.h"
 #include "Aura.h"
 #include "Components/SphereComponent.h"
 #include "DefaultGameplayTags.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameplayEffectTypes.h"
+#include "GameplayPrediction.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Utils/GameplayAbilityUtils.h"
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
+#include "GameplayCueFunctionLibrary.h"
+#include "GameplayCueManager.h"
 
 ADefaultProjectile::ADefaultProjectile()
 {
@@ -41,17 +46,19 @@ void ADefaultProjectile::BeginPlay()
     SetLifeSpan(LifeSpan);
 
     // LOOPING SOUND
-    auto LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
-    LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
+    if (LoopingSound) {
+        auto LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
+        LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
+    }
 	
-    Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
+    if (HasAuthority()) {
+        Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
+    }
 }
 
 void ADefaultProjectile::Destroyed() {
-    if (!bHit && !HasAuthority()) {
-        UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-    }
+    // UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+    // UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 
     Super::Destroyed();
 }
@@ -61,23 +68,25 @@ void ADefaultProjectile::OnSphereOverlap(
     UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep,
     const FHitResult &SweepResult) {
 
-    if (!bHit) {
-        UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+    // 避免伤害自己
+    if (!DamageEffectSpecHandle.Data.IsValid() || 
+        DamageEffectSpecHandle.Data->GetContext().GetEffectCauser() == OtherActor) {
+        return;
     }
 
-    if (HasAuthority()) {
-        if (auto TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor)) {
-            // Cause Damge
-            // TUniquePtr<FGameplayEffectSpecHandle> EffectSpec = 
-            //     GameplayAbilityUtils::ConstructEffectSpec(this, OtherActor, DamageEffectClass, 1.f);
+    if (auto TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor)) {
 
-            TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
-        }
-
-        Destroy();
-    } else {
-        bHit = true;
+        TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
     }
+
+    if (auto SourceASC = GameplayAbility->GetAbilitySystemComponentFromActorInfo()) {
+        FScopedPredictionWindow PredictionWindow { SourceASC };
+        FGameplayCueParameters CueParam {};
+        CueParam.Location = GetActorLocation();
+        UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
+            SourceASC, FDefaultGameplayTags::Get().GameplayCue_RangeImpact, SourceASC->ScopedPredictionKey, CueParam);
+    }
+
+    Destroy();
 }
 

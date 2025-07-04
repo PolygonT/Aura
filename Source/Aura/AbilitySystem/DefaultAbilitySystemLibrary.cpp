@@ -175,3 +175,19 @@ void UDefaultAbilitySystemLibrary::GetLivePlayersWithinRadius(
 
 
 }
+
+// TODO 6 不返回引用会造成额外复制，但返回引用会闪退，非法内存访问
+FTaggedMontage UDefaultAbilitySystemLibrary::GetRandomElementOfTagArr(
+    TArray<FTaggedMontage> arr) {
+
+    int32 arrSize = arr.Num();
+    check(arrSize != 0);
+
+    if (arrSize == 1) {
+        return arr[0];
+    }
+
+    int32 randomIndex = FMath::RandRange(0, arrSize - 1);
+    return arr[randomIndex];
+
+}

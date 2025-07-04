@@ -23,7 +23,7 @@ class AURA_API ADefaultProjectile : public AActor
 public:	
 	ADefaultProjectile();
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere)
     TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
     UPROPERTY()
