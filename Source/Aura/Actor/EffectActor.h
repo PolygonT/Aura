@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "ActiveGameplayEffectHandle.h"
 #include "GameplayTagContainer.h"
+#include "Interaction/EnvDamageInterface.h"
+#include "ScalableFloat.h"
 #include "EffectActor.generated.h"
 
 UENUM(BlueprintType)
@@ -19,7 +21,7 @@ struct FGameplayEffectSpecHandle;
 class UShapeComponent;
 
 UCLASS()
-class AURA_API AEffectActor : public AActor
+class AURA_API AEffectActor : public AActor, public IEnvDamageInterface
 {
 	GENERATED_BODY()
 	
@@ -31,6 +33,15 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void RemoveActiveEffect(AActor* TargetActor);
+
+    // ==========IEnvDamageInterface==============
+    virtual TMap<FGameplayTag, FScalableFloat>
+    GetDamageTypesMap() const override;
+
+    virtual TMap<FGameplayTag, FScalableFloat>
+    GetStackingTypesMap() const override;
+
+    // ==========IEnvDamageInterface End==========
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +63,15 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Applied Effect")
     FGameplayTag GEGameplayCueTag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    bool bDamageEffect { false };
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    TMap<FGameplayTag, FScalableFloat> DamageTypesMap;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
 
     UFUNCTION()
     void OnOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,

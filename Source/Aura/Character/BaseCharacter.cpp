@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
+#include "AbilitySystem/DefaultAttributeSet.h"
 #include "Aura.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -171,4 +172,12 @@ UNiagaraSystem *ABaseCharacter::GetBloodEffect_Implementation() {
     return BloodEffect;
 }
 
+TSubclassOf<UGameplayEffect> ABaseCharacter::GetOnFireEffect() const {
+    return OnFireEffect;
+}
 
+TSubclassOf<UGameplayEffect> ABaseCharacter::GetOnLightningEffect() const {
+    return OnLightningEffect;
+}
+
+UAttributeSet *ABaseCharacter::GetAttributeSet() const { return AttributeSet; }

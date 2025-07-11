@@ -62,6 +62,9 @@ public:
     UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
     FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnCooldownChanged;
+
   protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
     TObjectPtr<UDataTable> MessageWidgetDataTable;

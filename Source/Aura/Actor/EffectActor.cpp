@@ -7,6 +7,7 @@
 #include "AbilitySystemGlobals.h"
 #include "Components/SphereComponent.h"
 #include "Containers/Map.h"
+#include "DefaultGameplayTags.h"
 #include "GameplayCueManager.h"
 #include "GameplayPrediction.h"
 #include "Utils/GameplayAbilityUtils.h"
@@ -25,6 +26,15 @@ AEffectActor::AEffectActor()
         CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
         CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEndOverlap);
     }
+
+    for (auto& Pair : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
+        FGameplayTag& DamageType = Pair.Key;
+        DamageTypesMap.Add(DamageType, {});
+    }
+
+    for (const auto& Pair : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
+        StackingTypesMap.Add(Pair.Key, {});
+    }
 }
 
 void AEffectActor::BeginPlay()
@@ -42,6 +52,19 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
         this, TargetASC, TargetASC, GamePlayEffectClass, EffectLevel);
 
     if (!EffectSpec) return;
+
+
+    if (bDamageEffect) {
+        for (auto& Pair : DamageTypesMap) {
+            const float ScaledDamage = Pair.Value.GetValueAtLevel(EffectLevel);
+            UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(*EffectSpec, Pair.Key, ScaledDamage);
+        }
+
+        for (auto& Pair : StackingTypesMap) {
+            const float ScaledStackingVal = Pair.Value.GetValueAtLevel(EffectLevel);
+            UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(*EffectSpec, Pair.Key, ScaledStackingVal);
+        }
+    }
    
     // auto EffectSpec = EffectSpecOpt.GetValue();
     auto DurationPolicy = EffectSpec->Data->Def->DurationPolicy;
@@ -79,12 +102,14 @@ AEffectActor::ApplyEffect(AActor *TargetActor,
 
     auto TargetAbilitySystemComponent =
         UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-    FScopedPredictionWindow Window { TargetAbilitySystemComponent };
+    // FScopedPredictionWindow Window { TargetAbilitySystemComponent };
+    // UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
+    //     TargetAbilitySystemComponent, GEGameplayCueTag, FPredictionKey(), CueParam);
 
-    FGameplayCueParameters CueParam {};
-
-    UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
-        TargetAbilitySystemComponent, GEGameplayCueTag, TargetAbilitySystemComponent->ScopedPredictionKey, CueParam);
+    // FGameplayCueParameters CueParam {};
+    //
+    // UAbilitySystemGlobals::Get().InitGameplayCueParameters(CueParam, EffectSpec.Data->GetContext());
+    // TargetAbilitySystemComponent->ExecuteGameplayCue(GEGameplayCueTag, EffectSpec.Data->GetContext());
 
     FActiveGameplayEffectHandle ActiveEffectHandle =  TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(
         *EffectSpec.Data.Get());
@@ -93,7 +118,7 @@ AEffectActor::ApplyEffect(AActor *TargetActor,
 }
 
 void AEffectActor::RemoveActiveEffect(AActor* TargetActor) {
-    if (EffectRemovalPolicy == EEffectRemovalPolicy::DoNotRemove) {
+    if (EffectRemovalPolicy != EEffectRemovalPolicy::RemoveOnEndOverlap) {
         return;
     }
 
@@ -119,11 +144,15 @@ void AEffectActor::OnEndOverlap(UPrimitiveComponent *OverlappedComponent,
                                 AActor *OtherActor,
                                 UPrimitiveComponent *OtherComp,
                                 int32 OtherBodyIndex) {
-
-    if (EffectRemovalPolicy != EEffectRemovalPolicy::RemoveOnEndOverlap) {
-        return;
-    }
+    if (!HasAuthority()) { return; }
 
     RemoveActiveEffect(OtherActor);
 }
 
+TMap<FGameplayTag, FScalableFloat> AEffectActor::GetDamageTypesMap() const {
+    return DamageTypesMap;
+}
+
+TMap<FGameplayTag, FScalableFloat> AEffectActor::GetStackingTypesMap() const {
+    return StackingTypesMap;
+}

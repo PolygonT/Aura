@@ -76,6 +76,9 @@ void UExecCalcDamage::Execute_Implementation(
     const ICombatInterface* SourceCombatInterface = Cast<ICombatInterface>(SourceAvatarActor);
     const ICombatInterface* TargetCombatInterface = Cast<ICombatInterface>(TargetAvatarActor);
 
+    const UDefaultAttributeSet* SourceAS = Cast<UDefaultAttributeSet>(SourceCombatInterface->GetAttributeSet());
+    const UDefaultAttributeSet* TargetAS = Cast<UDefaultAttributeSet>(TargetCombatInterface->GetAttributeSet());
+
     const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
     const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags(); 
     const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags(); 
@@ -83,10 +86,29 @@ void UExecCalcDamage::Execute_Implementation(
     EvaluationParameters.SourceTags = SourceTags;
     EvaluationParameters.TargetTags = TargetTags;
 
+    // 是否为环境伤害或叠加伤害效果，如果是，不计算暴击伤害、防御伤害
+    bool bEnvDamage =
+        Spec.Def->GetAssetTags()
+        // .GetDynamicAssetTags()
+        .HasTagExact(FDefaultGameplayTags::Get().Effect_EnvDamage);
+    bool bStackingDamage =
+        Spec.Def->GetAssetTags()
+        .HasTagExact(FDefaultGameplayTags::Get().Effect_StackingDamage);
+    bool bIgnoreCritAndBlock { bEnvDamage || bStackingDamage };
+
     float Damage { 0.f };
+
     for (const auto& Pair : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
         const FGameplayTag DamageTypeTag = Pair.Key;
         const FGameplayTag ResistanceTypeTag = Pair.Value;
+
+        // 如果为环境伤害且角色拥有叠加伤害触发状态，忽略此类型伤害
+        auto DamageTypeAndStackingTriggeredMap = FDefaultGameplayTags::Get().DamageTypeAndStackingTriggeredMap;
+        if (bEnvDamage && 
+            DamageTypeAndStackingTriggeredMap.Contains(DamageTypeTag) && 
+            TargetASC->HasMatchingGameplayTag(DamageTypeAndStackingTriggeredMap[DamageTypeTag])) {
+            continue;
+        }
 
         checkf(DamageStatics().TagsToCaptureDefMap.Contains(ResistanceTypeTag),
                TEXT("error TagsToCaptureDefMap does't contains resistance type "
@@ -97,7 +119,7 @@ void UExecCalcDamage::Execute_Implementation(
         float Resistance { 0.f };
 
         // Get Set By Caller
-        float DamageVal = Spec.GetSetByCallerMagnitude(Pair.Key);
+        float DamageVal = Spec.GetSetByCallerMagnitude(DamageTypeTag);
 
         ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
             DamageStatics().TagsToCaptureDefMap[ResistanceTypeTag],
@@ -123,7 +145,7 @@ void UExecCalcDamage::Execute_Implementation(
 
 
     // 是否触发防御
-    bool bBlocked = FMath::RandRange(1, 100) <= BlockChance;
+    bool bBlocked = !bIgnoreCritAndBlock && FMath::RandRange(1, 100) <= BlockChance;
     if (bBlocked) {
         Damage /= 2.f;
     }
@@ -140,10 +162,12 @@ void UExecCalcDamage::Execute_Implementation(
     const auto CriticalCoefficient = CriticalHitCurve->Eval(SourceCombatInterface->GetPlayerLevel());
 
 
-    float EffectiveArmor = Armor * (100.f - ArmorPenetration * ArmorPenetrationCoefficient) / 100.f;
-    Damage *= (100.f - EffectiveArmor * EffectiveArmorCoefficient) / 100.f;
+    if (!bIgnoreCritAndBlock) {
+        float EffectiveArmor = Armor * (100.f - ArmorPenetration * ArmorPenetrationCoefficient) / 100.f;
+        Damage *= (100.f - EffectiveArmor * EffectiveArmorCoefficient) / 100.f;
+    }
 
-    bool bCriticalHit = FMath::RandRange(1, 100) <= CriticalHitChance;
+    bool bCriticalHit = !bIgnoreCritAndBlock && FMath::RandRange(1, 100) <= CriticalHitChance;
     if (bCriticalHit) {
         Damage *= 2 * CriticalCoefficient; 
     }
@@ -154,6 +178,18 @@ void UExecCalcDamage::Execute_Implementation(
     UDefaultAbilitySystemLibrary::SetIsBlockedHit(Context, bBlocked);
     UDefaultAbilitySystemLibrary::SetIsCriticalHit(Context, bCriticalHit);
 
+    // Damage Modifier
     FGameplayModifierEvaluatedData EvaluatedData { UDefaultAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage };
     OutExecutionOutput.AddOutputModifier(EvaluatedData);
+
+    // Stacking Modifier
+    for (const auto& Pair : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
+        float StackingVal { Spec.GetSetByCallerMagnitude(Pair.Key) };
+        if (TargetASC->HasMatchingGameplayTag(Pair.Value)) {
+            StackingVal = 0.f;
+        }
+
+        FGameplayModifierEvaluatedData EvaluatedDataStacking { TargetAS->StackingTagAttributeMap[Pair.Key], EGameplayModOp::Additive, StackingVal };
+        OutExecutionOutput.AddOutputModifier(EvaluatedDataStacking);
+    }
 }

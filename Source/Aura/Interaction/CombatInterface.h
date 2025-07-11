@@ -10,6 +10,8 @@
 class UAnimMontage;
 class UNiagaraSystem;
 class USoundBase;
+class UGameplayEffect;
+class UAttributeSet;
 
 USTRUCT(BlueprintType)
 struct FTaggedMontage {
@@ -41,6 +43,8 @@ class AURA_API ICombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+    virtual UAttributeSet* GetAttributeSet() const = 0;
+
     virtual int32 GetPlayerLevel() const;
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -70,4 +74,8 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
     UNiagaraSystem* GetBloodEffect();
+
+    virtual TSubclassOf<UGameplayEffect> GetOnFireEffect() const = 0;
+
+    virtual TSubclassOf<UGameplayEffect> GetOnLightningEffect() const = 0;
 };

@@ -27,9 +27,15 @@ TUniquePtr<FGameplayEffectSpecHandle> GameplayAbilityUtils::ConstructEffectSpec(
 
     check(GamePlayEffectClass);
 
+    if (!IsValid(SourceASC)) {
+        return {};
+    }
+
     auto EffectContextHandle = SourceASC->MakeEffectContext();
 
-    EffectContextHandle.AddSourceObject(SourceObject);
+    if (SourceObject) {
+        EffectContextHandle.AddSourceObject(SourceObject);
+    }
 
     return MakeUnique<FGameplayEffectSpecHandle>(TargetASC->MakeOutgoingSpec(
         GamePlayEffectClass, EffectLevel, EffectContextHandle));

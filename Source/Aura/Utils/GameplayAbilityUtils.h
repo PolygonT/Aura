@@ -16,5 +16,5 @@ TUniquePtr<FGameplayEffectSpecHandle>
 ConstructEffectSpec(UObject *SourceObject, UAbilitySystemComponent *SourceASC,
                     UAbilitySystemComponent *TargetASC,
                     TSubclassOf<UGameplayEffect> GamePlayEffectClass,
-                    float EffectLevel);
+                    float EffectLevel = 1.f);
 }

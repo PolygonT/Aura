@@ -35,31 +35,37 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-    UAttributeSet* GetAttributeSet() const { return AttributeSet; }
-
+    
     // =============== Combat Interface ===================
+    virtual UAttributeSet *GetAttributeSet() const override;
     virtual UAnimMontage *GetHitReactMontage_Implementation() override;
     virtual void Die() override;
-    virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
+    virtual FVector GetCombatSocketLocation_Implementation(
+        const FGameplayTag &MontageTag) override;
     virtual bool IsDead_Implementation() const override;
     virtual AActor *GetAvtar_Implementation() override;
-    virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+    virtual TArray<FTaggedMontage>
+    GetAttackMontages_Implementation() override;
     virtual UNiagaraSystem *GetBloodEffect_Implementation() override;
+    virtual TSubclassOf<UGameplayEffect> GetOnFireEffect() const override;
+    virtual TSubclassOf<UGameplayEffect>
+    GetOnLightningEffect() const override;
 
     // =============== Combat Interface ===================
-    
+
     UFUNCTION(NetMulticast, Reliable)
     virtual void MulticastHandleDealth();
 
     void Dissolve();
 
     UFUNCTION(BlueprintImplementableEvent)
-    void StartDissolveTimeline(const TArray<UMaterialInstanceDynamic*>& MaterialInstance);
+    void StartDissolveTimeline(
+        const TArray<UMaterialInstanceDynamic *> &MaterialInstance);
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     TArray<FTaggedMontage> AttackMontages;
 
-protected:
+  protected:
     virtual void BeginPlay() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
@@ -95,8 +101,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
 
-    bool bDead { false };
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    TSubclassOf<UGameplayEffect> OnFireEffect;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    TSubclassOf<UGameplayEffect> OnLightningEffect;
+
+    bool bDead{false};
 
     virtual void InitAbilityActorInfo();
 
@@ -110,7 +121,7 @@ protected:
 
     void AddCharactorGameplayCues();
 
-private:
+  private:
     UPROPERTY(EditAnywhere, Category = "Abilities")
     TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 

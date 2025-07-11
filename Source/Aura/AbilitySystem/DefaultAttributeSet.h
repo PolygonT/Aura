@@ -140,6 +140,14 @@ public:
     FGameplayAttributeData ResistancePhysical;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, ResistancePhysical)
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxFireStacking, Category = "Secondary Attributes")
+    FGameplayAttributeData MaxFireStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, MaxFireStacking)
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxLightningStacking, Category = "Secondary Attributes")
+    FGameplayAttributeData MaxLightningStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, MaxLightningStacking)
+
     /**
     * Vital Attributes
     */
@@ -151,14 +159,31 @@ public:
     FGameplayAttributeData Mana;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, Mana)
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireStacking, Category = "Vital Attributes")
+    FGameplayAttributeData FireStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, FireStacking)
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LightningStacking, Category = "Vital Attributes")
+    FGameplayAttributeData LightningStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, LightningStacking)
+
     /**
     * Meta Attributes (Does't Replicate)
     */
     UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
     FGameplayAttributeData IncomingDamage;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingDamage)
+
+    UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+    FGameplayAttributeData IncomingFireStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingFireStacking)
+
+    UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+    FGameplayAttributeData IncomingLightningStacking;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingLightningStacking)
     
     TMap<FGameplayTag, FGameplayAttribute(*)()> AttributeGetMap;
+    TMap<FGameplayTag, FGameplayAttribute> StackingTagAttributeMap;
 
     //~ End Member viriables
 
@@ -229,8 +254,27 @@ public:
 
     UFUNCTION()
     void OnRep_ResistancePhysical(const FGameplayAttributeData OldResistancePhysical) const;
+
+    UFUNCTION()
+    void OnRep_FireStacking(const FGameplayAttributeData OldFireStacking) const;
+
+    UFUNCTION()
+    void OnRep_LightningStacking(const FGameplayAttributeData OldLightningStacking) const;
+
+    UFUNCTION()
+    void OnRep_MaxFireStacking(const FGameplayAttributeData OldMaxFireStacking) const;
+
+    UFUNCTION()
+    void OnRep_MaxLightningStacking(const FGameplayAttributeData OldMaxLightningStacking) const;
     //~ End Member function
+
 private:
-  void SetEffectProperties(const FGameplayEffectModCallbackData &Data,
-                           FEffectProperties& Props);
+    void SetEffectProperties(const FGameplayEffectModCallbackData &Data,
+                             FEffectProperties& Props);
+
+    void DealIncomingDamage(FEffectProperties& Props);
+
+    void DealIncomingFireStacking(FEffectProperties& Props);
+
+    void DealIncomingLightningStacking(FEffectProperties& Props);
 };

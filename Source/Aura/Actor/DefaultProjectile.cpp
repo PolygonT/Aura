@@ -80,11 +80,12 @@ void ADefaultProjectile::OnSphereOverlap(
     }
 
     if (auto SourceASC = GameplayAbility->GetAbilitySystemComponentFromActorInfo()) {
-        FScopedPredictionWindow PredictionWindow { SourceASC };
+        // FScopedPredictionWindow PredictionWindow { SourceASC };
         FGameplayCueParameters CueParam {};
         CueParam.Location = GetActorLocation();
-        UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
-            SourceASC, FDefaultGameplayTags::Get().GameplayCue_RangeImpact, SourceASC->ScopedPredictionKey, CueParam);
+        SourceASC->ExecuteGameplayCue(FDefaultGameplayTags::Get().GameplayCue_RangeImpact, CueParam);
+        // UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
+        //     SourceASC, FDefaultGameplayTags::Get().GameplayCue_RangeImpact, SourceASC->ScopedPredictionKey, CueParam);
     }
 
     Destroy();

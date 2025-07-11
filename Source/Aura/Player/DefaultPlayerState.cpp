@@ -7,7 +7,7 @@
 #include "Net/UnrealNetwork.h"
 
 ADefaultPlayerState::ADefaultPlayerState() {
-    SetNetUpdateFrequency(100.f);
+    SetNetUpdateFrequency(128.f);
 
     AbilitySystemComponent = CreateDefaultSubobject<UDefaultAbilitySystemComponent>("AbilitySystemComponent");
     AbilitySystemComponent->SetIsReplicated(true);

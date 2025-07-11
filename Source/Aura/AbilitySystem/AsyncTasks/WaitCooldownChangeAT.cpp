@@ -6,7 +6,7 @@
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
 
-UWaitCooldownChangeAT *UWaitCooldownChangeAT::WaitForCooldownChange(
+UWaitCooldownChangeAT *UWaitCooldownChangeAT::ListenForCooldownChange(
     UAbilitySystemComponent *AbilitySystemComponent,
     const FGameplayTag &InCooldownTag) {
     UWaitCooldownChangeAT* WaitCooldownChange = NewObject<UWaitCooldownChangeAT>();
@@ -22,7 +22,7 @@ UWaitCooldownChangeAT *UWaitCooldownChangeAT::WaitForCooldownChange(
     AbilitySystemComponent->RegisterGameplayTagEvent(InCooldownTag, EGameplayTagEventType::NewOrRemoved)
         .AddUObject(
             WaitCooldownChange, &ThisClass::CooldownTagChanged);
-    AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(WaitCooldownChange, &UWaitCooldownChangeAT::OnActiveEffectAdded);
+    AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(WaitCooldownChange, &UWaitCooldownChangeAT::OnActiveEffectAddedCallback);
 
     return WaitCooldownChange;
 }
@@ -46,7 +46,7 @@ void UWaitCooldownChangeAT::CooldownTagChanged(
     }
 }
 
-void UWaitCooldownChangeAT::OnActiveEffectAdded(
+void UWaitCooldownChangeAT::OnActiveEffectAddedCallback(
     UAbilitySystemComponent *TargetASC, const FGameplayEffectSpec &SpecApplied,
     FActiveGameplayEffectHandle ActiveEffectHandle) {
     FGameplayTagContainer AssetTags;
@@ -61,12 +61,13 @@ void UWaitCooldownChangeAT::OnActiveEffectAdded(
 
         TArray<float> TimesRemainingArr = ASC->GetActiveEffectsTimeRemaining(GameplayEffectQuery);
 
-        float TimeRemaining {};
-        if (TimesRemainingArr.Num() == 0) {
-            TimeRemaining = TimesRemainingArr[0];
-        } else if (TimesRemainingArr.Num() > 1) {
-            TimesRemainingArr.Sort();
-            TimeRemaining = TimesRemainingArr[TimesRemainingArr.Num() - 1];
+        float TimeRemaining { 0.f };
+        if (TimesRemainingArr.Num() > 0) {
+            for (float TimeEle : TimesRemainingArr) {
+                if (TimeEle > TimeRemaining) {
+                    TimeRemaining = TimeEle;
+                }
+            }
         }
 
         CooldownStart.Broadcast(TimeRemaining);

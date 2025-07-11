@@ -19,12 +19,16 @@ struct FDefaultGameplayTags {
 
     TArray<FGameplayTag> Iter;
     TMap<FGameplayTag, FGameplayTag> DamageTypeAndResistanceMap;
+    TMap<FGameplayTag, FGameplayTag> DamageTypeAndStackingTriggeredMap;
+    TMap<FGameplayTag, FGameplayTag> StackingTypeAndTriggeredMap;
 
     // ----------------------- Attributes -----------------------
 
     // Vital Attributes
     FGameplayTag Attributes_Vital_Health;
     FGameplayTag Attributes_Vital_Mana;
+    FGameplayTag Attributes_Vital_FireStacking;
+    FGameplayTag Attributes_Vital_LightningStacking;
 
     // Primary Attributes
     FGameplayTag Attributes_Primary_Strength;
@@ -43,6 +47,8 @@ struct FDefaultGameplayTags {
     FGameplayTag Attributes_Secondary_ManaRegeneration;
     FGameplayTag Attributes_Secondary_MaxHealth;
     FGameplayTag Attributes_Secondary_MaxMana;
+    FGameplayTag Attributes_Secondary_MaxFireStacking;
+    FGameplayTag Attributes_Secondary_MaxLightningStacking;
 
     FGameplayTag Attributes_Resistance_Fire;
     FGameplayTag Attributes_Resistance_Lightning;
@@ -68,7 +74,15 @@ struct FDefaultGameplayTags {
     FGameplayTag Damage_Arcane;
     FGameplayTag Damage_Physical;
 
+    FGameplayTag Stacking_Fire;
+    FGameplayTag Stacking_Fire_Triggered;
+    FGameplayTag Stacking_Lightning;
+    FGameplayTag Stacking_Lightning_Triggered;
+
+    FGameplayTag Effect;
     FGameplayTag Effect_HitReact;
+    FGameplayTag Effect_EnvDamage;
+    FGameplayTag Effect_StackingDamage;
 
     FGameplayTag Ability_Enemy_Melee;
     FGameplayTag Ability_Enemy_Range;
@@ -84,5 +98,12 @@ struct FDefaultGameplayTags {
 
     FGameplayTag GameplayCue_RangeImpact;
     FGameplayTag GameplayCue_Test;
+
+    // ----------------------- Set By Caller Tags ---------------------------
+
+    FGameplayTag SetByCaller_GA_Cooldown;
+
+    // ----------------------- Set By Caller Tags End -----------------------
+
 };
 

@@ -2,7 +2,7 @@
 #include "Engine/HitResult.h"
 
 UScriptStruct *FDefaultGameplayEffectContext::GetScriptStruct() const {
-		return FGameplayEffectContext::StaticStruct();
+    return FDefaultGameplayEffectContext::StaticStruct();
 }
 
 bool FDefaultGameplayEffectContext::NetSerialize(FArchive &Ar,

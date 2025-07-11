@@ -14,6 +14,10 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Vital.Health");
     Attributes_Vital_Mana =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Vital.Mana");
+    Attributes_Vital_FireStacking =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Vital.FireStacking");
+    Attributes_Vital_LightningStacking =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Vital.LightningStacking");
 
     // Primary Attributes
     Attributes_Primary_Strength =
@@ -46,6 +50,10 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Secondary.MaxHealth", FString(""));
     Attributes_Secondary_MaxMana =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Secondary.MaxMana", FString(""));
+    Attributes_Secondary_MaxFireStacking =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Secondary.MaxFireStacking", FString(""));
+    Attributes_Secondary_MaxLightningStacking =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Secondary.MaxLightningStacking", FString(""));
 
     Attributes_Resistance_Fire =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Attributes.Resistance.Fire", FString(""));
@@ -81,8 +89,23 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
     Damage_Physical =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Damge.Physical", FString(""));
 
+    Stacking_Fire = 
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Stacking.Fire", FString(""));
+    Stacking_Fire_Triggered = 
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Stacking.Fire.Triggered", FString(""));
+    Stacking_Lightning = 
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Stacking.Lightning", FString(""));
+    Stacking_Lightning_Triggered = 
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Stacking.Lightning.Triggered", FString(""));
+
+    Effect =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Effects", FString(""));
     Effect_HitReact =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.HitReact", FString(""));
+    Effect_EnvDamage =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.EnvDamage", FString("Enviroment Damage Effect, ignore critial chance and blockchance"));
+    Effect_StackingDamage =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.StackingDamage", FString("Stacking Damage Effect, ignore critial chance and blockchance"));
 
     Ability_Enemy_Melee =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Melee", FString(""));
@@ -108,6 +131,9 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
     GameplayCue_Test =
         UGameplayTagsManager::Get().AddNativeGameplayTag("GameplayCue.TestCCCCUE", FString(""));
 
+    SetByCaller_GA_Cooldown =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("SetByCaller.GA.Cooldown", FString(""));
+
     Iter.Add(Attributes_Vital_Health);
     Iter.Add(Attributes_Vital_Mana);
     Iter.Add(Attributes_Primary_Strength);
@@ -128,11 +154,21 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
     Iter.Add(Attributes_Resistance_Lightning);
     Iter.Add(Attributes_Resistance_Arcane);
     Iter.Add(Attributes_Resistance_Physical);
+    Iter.Add(Attributes_Vital_FireStacking);
+    Iter.Add(Attributes_Vital_LightningStacking);
+    Iter.Add(Attributes_Secondary_MaxFireStacking);
+    Iter.Add(Attributes_Secondary_MaxLightningStacking);
 
     DamageTypeAndResistanceMap.Add(Damage_Fire, Attributes_Resistance_Fire);
     DamageTypeAndResistanceMap.Add(Damage_Lightning, Attributes_Resistance_Lightning);
     DamageTypeAndResistanceMap.Add(Damage_Arcane, Attributes_Resistance_Arcane);
     DamageTypeAndResistanceMap.Add(Damage_Physical, Attributes_Resistance_Physical);
+
+    StackingTypeAndTriggeredMap.Add(Stacking_Fire, Stacking_Fire_Triggered);
+    StackingTypeAndTriggeredMap.Add(Stacking_Lightning, Stacking_Lightning_Triggered);
+
+    DamageTypeAndStackingTriggeredMap.Add(Damage_Fire, Stacking_Fire_Triggered);
+    DamageTypeAndStackingTriggeredMap.Add(Damage_Lightning, Stacking_Lightning_Triggered);
 }
 
 FDefaultGameplayTags &FDefaultGameplayTags::Get() {

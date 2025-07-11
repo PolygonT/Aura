@@ -10,24 +10,34 @@
 而且不需要virtual关键字
 - [ ] shift发射火球的方向不是鼠标的方向，会偏移
 - [ ] blueprint pure? 没有执行pin的方法，没有副作用（不会改变任何对象的状态），还隐式的包含了BlueprintCallable
-- [ ] APlayerController是AController的子类，为什么不能用AController接受APlayerController
+- [x] APlayerController是AController的子类，为什么不能用AController接受APlayerController （代码错误，头文件中没有包含Controller.h，所以编译器不认识AController类）
 - [ ] BUG 火球Destroy时触碰角色触碰到，可能先overlap了，overlap代码执行过程中火球已经销毁了？
 - [ ] TODO 4 How to remove this new key
 - [ ] BUG 客户端发火球，如果主角和敌人隔得太近，火球在服务器生成-销毁过快，客户端没有得到火球的overlap和Destroy执行
 - [ ] TODO 5 这里的Replicate是否合适，是为了修复客户端敌人死后血条往下掉的BUG加上的
 - [ ] TODO 6 不返回引用会造成额外复制，但返回引用会闪退，非法内存访问
 - [ ] 点脚下发射火球时，motion warping有点问题，应该以人物为原点向点的方向旋转
+- [ ] BUG，网络有延迟的情况下，客户端火球有时候发不出来
+- [ ] WaitCooldown.cpp需要参考GasDocument项目的预测写法
+- [ ] 设计火、雷等等叠加属性，属性到100就触发着火、雷电等效果。收到火焰伤害或者在火堆中都会叠加这个值.
+如果角色已经着火，清空叠加属性值，而且在着火期间不会叠加值
+- [ ] TODO StackingAttribute随时间减少
+- [ ] TODO BUG FIX(Effect Actor的Effect预测导致) LogAbilitySystem: Warning: RemoveActiveGameplayEffect called without Authority when attempting to remove None. Fix-up code, or temporarily patch using AbilitySystem.Fix.AllowPredictiveGEFlags
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate
 ![](assets/2025-05-28-14-54-28.png)
 - [ ] PreAttributesChange Only Change the Current Value of the FGameplayAttributeData?
 - [ ] TObjectPtr有什么好处？
-- [ ] diff between MMC and Exec_Calc
-- [ ] cancel ability with tag
-- [ ] gameplay cue?
+- [x] diff between MMC and Exec_Calc (MMC只能改变一个Attribute，他们都可以捕获多个Attribute)
+- [x] cancel ability with tag (当启动当前能里会取消这个tag关联的能力)
+- [x] gameplay cue (GasDocument)
 - [ ] diff between pawn and character
 - [ ] GE中填GameplayCue无法Replicate，可能是虚幻版本问题？而且添加了之后第一次启动游戏触发GE会卡顿
+- [ ] MarkAsDirty() ?
+- [ ] Ability Batching
+- [ ] how to set actor relevancy range ()
+- [ ] EffectActor的EndOverlap已经绑定到Server了，但是执行多人游戏依然会在客户端执行，是因为Prediction吗？
 
 ## Editor Skill
 - GA，Instance PerActor，每个Actor只会有一个GA创建
@@ -54,6 +64,7 @@ ICombatInterface::Execute_GetCombatSocketLocationExecute_GetCombatSocketLocation
     - attach武器
     - anim montage中timed niagara effect需要socket（eg：攻击trail）
 - AbilitySystemComponent->RegisterGameplayTagEvent (eg: Register Gameplay Tag Event (Hit React))
+- If you get the error message LogAbilitySystem: Warning: Can't activate LocalOnly or LocalPredicted ability %s when not local! then you did not initialize your ASC on the client.
 
 ## PLUS
 - 虚血条插值
