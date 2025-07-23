@@ -16,6 +16,14 @@ class UGameplayEffect;
 class UGameplayAbility;
 class UMaterialInstance;
 class UMaterialInstanceDynamic;
+class UGameplayAbility;
+struct FGameplayAbilitySpec;
+
+UENUM(BlueprintType)
+enum class ECharacterState : uint8 {
+    MainState,
+    CombatState
+};
 
 USTRUCT(BlueprintType)
 struct FSpecializedAbilityInfo {
@@ -48,8 +56,15 @@ public:
     GetAttackMontages_Implementation() override;
     virtual UNiagaraSystem *GetBloodEffect_Implementation() override;
     virtual TSubclassOf<UGameplayEffect> GetOnFireEffect() const override;
-    virtual TSubclassOf<UGameplayEffect>
-    GetOnLightningEffect() const override;
+    virtual TSubclassOf<UGameplayEffect> GetOnLightningEffect() const override;
+    virtual TSubclassOf<UGameplayEffect> GetLevelUpEffect() const override;
+    virtual float GetXpDrop() const override;
+    virtual int32 GetCurrentMaxXp() const override;
+    virtual int32 GetPlayerLevel() const override;
+    virtual bool IsPlayer() const override;
+
+    virtual void StartCombatState_Implementation(ECombatState InCombatState) override;
+    virtual void EndCombatState_Implementation() override;
 
     // =============== Combat Interface ===================
 
@@ -61,6 +76,9 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void StartDissolveTimeline(
         const TArray<UMaterialInstanceDynamic *> &MaterialInstance);
+
+    UFUNCTION(BlueprintCallable)
+    const UGameplayAbility* GetActivatableAbilityByTag(UPARAM(ref) FGameplayTag& Tag, FGameplayAbilitySpec& OutAbilitySpec);
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     TArray<FTaggedMontage> AttackMontages;
@@ -98,6 +116,12 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     ECharacterClass CharacterClass;
 
+    UPROPERTY(BlueprintReadOnly)
+    ECharacterState CharacterState { ECharacterState::MainState };
+
+    UPROPERTY(BlueprintReadOnly)
+    ECombatState CombatState { ECombatState::Default };
+
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
 
@@ -107,7 +131,19 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
     TSubclassOf<UGameplayEffect> OnLightningEffect;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    TSubclassOf<UGameplayEffect> LevelUpEffect;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    FScalableFloat XpDropScalable;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Init Defaults")
+    FScalableFloat MaxXpScalable;
+
     bool bDead{false};
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    float BaseWalkSpped { 250.f };
 
     virtual void InitAbilityActorInfo();
 
@@ -120,6 +156,8 @@ public:
     void AddCharactorAbilities();
 
     void AddCharactorGameplayCues();
+
+    void Stun(const FGameplayTag GameplayTag, int32 NewCount);
 
   private:
     UPROPERTY(EditAnywhere, Category = "Abilities")

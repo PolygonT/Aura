@@ -18,7 +18,7 @@ enum class EEffectRemovalPolicy : uint8 {
 
 class UGameplayEffect;
 struct FGameplayEffectSpecHandle;
-class UShapeComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class AURA_API AEffectActor : public AActor, public IEnvDamageInterface
@@ -46,8 +46,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+    virtual void Tick(float DeltaSeconds) override;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
-    TObjectPtr<UShapeComponent> CollisionComponent;
+    TObjectPtr<UCapsuleComponent> CollisionComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
     TSubclassOf<UGameplayEffect> GameplayEffectClass;
@@ -61,9 +63,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
     bool bApplyEffectsToEnemies { false };
 
-    UPROPERTY(EditAnywhere, Category = "Applied Effect")
-    FGameplayTag GEGameplayCueTag;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
     bool bDamageEffect { false };
 
@@ -73,10 +72,25 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
     TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
+    bool bFloating { false };
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
+    float FloatingSpeed { 2.5f };
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
+    float FloatingRange { 30.f };
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
+    float RotationSpeed { 50.f };
+
+    FVector SourceLocation;
+
     UFUNCTION()
-    void OnOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor,
-                   UPrimitiveComponent *OtherComp, int32 OtherBodyIndex,
-                   bool bFromSweep, const FHitResult &SweepResult);
+    void OnOverlap(UPrimitiveComponent *OverlappedComponent,
+                   AActor *OtherActor, UPrimitiveComponent *OtherComp,
+                   int32 OtherBodyIndex, bool bFromSweep,
+                   const FHitResult &SweepResult);
 
     UFUNCTION()
     void OnEndOverlap(UPrimitiveComponent *OverlappedComponent,
@@ -89,4 +103,6 @@ private:
     FActiveGameplayEffectHandle
     ApplyEffect(AActor *TargetActor, FGameplayEffectSpecHandle &EffectSpec,
                 TSubclassOf<UGameplayEffect> GamePlayEffectClass);
+
+    float RunningTime { 0.f };
 };

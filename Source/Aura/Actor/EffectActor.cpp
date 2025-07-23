@@ -5,7 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Containers/Map.h"
 #include "DefaultGameplayTags.h"
 #include "GameplayCueManager.h"
@@ -14,13 +14,15 @@
 
 AEffectActor::AEffectActor()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
     bReplicates = true;
 
     SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
 
-    CollisionComponent = CreateDefaultSubobject<USphereComponent>("CollisionComponent");
+    
+    CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>("CollisionComponent");
     CollisionComponent->SetupAttachment(GetRootComponent());
+    CollisionComponent->SetCapsuleHalfHeight(22.f);
 
     if (HasAuthority()) {
         CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
@@ -40,6 +42,23 @@ AEffectActor::AEffectActor()
 void AEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+    SourceLocation = GetActorLocation();
+}
+
+void AEffectActor::Tick(float DeltaSeconds) {
+    Super::Tick(DeltaSeconds);
+
+    if (bFloating) {
+        RunningTime += DeltaSeconds;
+        float alpha = 0.5f * FMath::Sin(RunningTime * FloatingSpeed) + 0.5f; // alpha 0 ~ 1
+        const FVector TargetLocation = { SourceLocation.X, SourceLocation.Y, SourceLocation.Z + FloatingRange};
+        const FVector DesitinationLocation = FMath::Lerp(SourceLocation, TargetLocation, alpha);
+
+        const FRotator Rotation = { 0.f, DeltaSeconds * RotationSpeed, 0.f };
+        AddActorWorldRotation(Rotation);
+        SetActorLocation(DesitinationLocation);
+    }
 }
 
 void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass) {
@@ -156,3 +175,4 @@ TMap<FGameplayTag, FScalableFloat> AEffectActor::GetDamageTypesMap() const {
 TMap<FGameplayTag, FScalableFloat> AEffectActor::GetStackingTypesMap() const {
     return StackingTypesMap;
 }
+

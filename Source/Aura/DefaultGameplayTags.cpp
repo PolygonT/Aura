@@ -102,6 +102,8 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects", FString(""));
     Effect_HitReact =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.HitReact", FString(""));
+    Effect_Stun =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.Stun", FString(""));
     Effect_EnvDamage =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Effects.EnvDamage", FString("Enviroment Damage Effect, ignore critial chance and blockchance"));
     Effect_StackingDamage =
@@ -115,6 +117,17 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
         UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Enemy.Attack", FString(""));
     Ability_Pickup_EffectActor =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Pickup.EffectActor", FString(""));
+    Ability_Aura =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Aura", FString(""));
+    Ability_Aura_FireBolt =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Aura.FireBolt", FString(""));
+    Ability_Aura_LightningShock =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Ability.Aura.LightningShock", FString(""));
+
+    PunishAbility_HitReact =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("PunishAbility.HitReact", FString(""));
+    PunishAbility_Stun =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("PunishAbility.Stun", FString(""));
 
     Montage_Attack_Weapon =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Montage.Attack.Weapon", FString(""));
@@ -125,6 +138,8 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
 
     Cooldown_Fire_FireBolt =
         UGameplayTagsManager::Get().AddNativeGameplayTag("Cooldown.Fire.FireBolt", FString(""));
+    Cooldown_LightningShock =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("Cooldown.LightningShock", FString(""));
 
     GameplayCue_RangeImpact =
         UGameplayTagsManager::Get().AddNativeGameplayTag("GameplayCue.RangeImpact", FString(""));
@@ -133,6 +148,8 @@ FDefaultGameplayTags::FDefaultGameplayTags() {
 
     SetByCaller_GA_Cooldown =
         UGameplayTagsManager::Get().AddNativeGameplayTag("SetByCaller.GA.Cooldown", FString(""));
+    SetByCaller_GE_GainXp =
+        UGameplayTagsManager::Get().AddNativeGameplayTag("SetByCaller.GE.GainXp", FString(""));
 
     Iter.Add(Attributes_Vital_Health);
     Iter.Add(Attributes_Vital_Mana);

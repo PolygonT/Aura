@@ -148,3 +148,5 @@ void AEnemy::SetCombatTarget_Implementation(AActor *InCombatTarget) {
 AActor *AEnemy::GetCombatTarget_Implementation() const {
     return CombatTarget;
 }
+
+bool AEnemy::IsPlayer() const { return false; }

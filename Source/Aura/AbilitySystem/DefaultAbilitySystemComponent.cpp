@@ -3,6 +3,8 @@
 
 #include "DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
+#include "DefaultGameplayTags.h"
+#include "Player/DefaultPlayerState.h"
 
 void UDefaultAbilitySystemComponent::AbilityActorInfoSet() {
     this->OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UDefaultAbilitySystemComponent::EffectApplied);
@@ -62,8 +64,44 @@ void UDefaultAbilitySystemComponent::AbilityInputTagReleased(
     for (auto& AbilitySpec : GetActivatableAbilities()) {
         if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag)) {
             AbilitySpecInputReleased(AbilitySpec);
+
+            if (AbilitySpec.IsActive()) {
+                UGameplayAbility* PrimaryInstance = AbilitySpec.GetPrimaryInstance();
+                if (PrimaryInstance) {
+                    InvokeReplicatedEvent(
+                        EAbilityGenericReplicatedEvent::InputReleased,
+                        AbilitySpec.Handle,
+                        PrimaryInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+                }
+            }
         }
     }
 }
 
+void UDefaultAbilitySystemComponent::LevelUpAbility(TSubclassOf<UGameplayAbility> AbilityClass) {
+    FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
+    if (!AbilitySpec) { return; }
+    AbilitySpec->Level += 1;
+
+    MarkAbilitySpecDirty(*AbilitySpec);
+
+    
+    UDefaultGameplayAbility* DefaultGA = Cast<UDefaultGameplayAbility>(AbilitySpec->Ability);
+    TUniquePtr<FGameplayTag> AbilityAssetTag = nullptr;
+    for (const auto& AssetTag : DefaultGA->GetAssetTags()) {
+        if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
+            AbilityAssetTag = MakeUnique<FGameplayTag>(AssetTag);
+            break;
+        }
+    }
+
+    if (!AbilityAssetTag) { return; }
+    
+    LevelChangeDelegate.Broadcast(DefaultGA->AbilityName, *AbilityAssetTag, AbilitySpec->Level, DefaultGA->CooldownTags.First());
+}
+
+FOnAbilityLevelChangeSignature&
+UDefaultAbilitySystemComponent::GetOnLevelChangeDelegate() {
+    return LevelChangeDelegate;
+}
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/AssetManager.h"
+#include "GameplayEffect.h"
 #include "DefaultAssetManager.generated.h"
 
 /**
@@ -15,7 +16,12 @@ class AURA_API UDefaultAssetManager : public UAssetManager
 	GENERATED_BODY()
 
 public:
+    UDefaultAssetManager();
+
     static UDefaultAssetManager &Get();
+
+    UPROPERTY()
+    TSubclassOf<UGameplayEffect> GainXpEffectClass;
 
 protected:
     virtual void StartInitialLoading() override;

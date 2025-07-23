@@ -5,6 +5,7 @@ Platforms/
 DerivedDataCache/
 .vs/
 .cache/
+Builds/
 
 
 .vsconfig

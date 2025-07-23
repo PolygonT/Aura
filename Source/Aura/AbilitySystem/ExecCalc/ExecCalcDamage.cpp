@@ -98,9 +98,9 @@ void UExecCalcDamage::Execute_Implementation(
 
     float Damage { 0.f };
 
-    for (const auto& Pair : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
-        const FGameplayTag DamageTypeTag = Pair.Key;
-        const FGameplayTag ResistanceTypeTag = Pair.Value;
+    for (const auto& [DamageTypeTag, ResistanceTypeTag] : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
+        // const FGameplayTag DamageTypeTag = Pair.Key;
+        // const FGameplayTag ResistanceTypeTag = Pair.Value;
 
         // 如果为环境伤害且角色拥有叠加伤害触发状态，忽略此类型伤害
         auto DamageTypeAndStackingTriggeredMap = FDefaultGameplayTags::Get().DamageTypeAndStackingTriggeredMap;

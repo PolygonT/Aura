@@ -23,6 +23,15 @@
 如果角色已经着火，清空叠加属性值，而且在着火期间不会叠加值
 - [ ] TODO StackingAttribute随时间减少
 - [ ] TODO BUG FIX(Effect Actor的Effect预测导致) LogAbilitySystem: Warning: RemoveActiveGameplayEffect called without Authority when attempting to remove None. Fix-up code, or temporarily patch using AbilitySystem.Fix.AllowPredictiveGEFlags
+- [ ] 手柄和键盘的兼容，目前LightningShock还没有MotionWarping; 翻译; 被动技能（随时间减Stacking Value） 
+- [ ] 能力升级 Lightning Shock每升一级可以自动连接最近的一个敌人
+- [ ] Health/Mana Crystal的持续恢复效果，目前是用插值算法来跟随角色，是否还可以用行为树使它更真实一点。（目前如果角色一直移动，效果是追不上角色的，想要角色突然移动效果延迟一段时间开始，并且角色一直移动效果可以在加速后追上角色）
+- [x] 完成拾取物品的动画
+- [x] 没有蓝量LightningShock需要立即结束、攻击命中动画能不能复用
+- [ ] LightningShock对敌人的伤害没有显示
+- [ ] 实现经验条和升级, 升级后文字提示
+- [ ] 开始游戏界面和载入界面
+- [ ] 升级后最大血量没有改变
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate
@@ -38,6 +47,8 @@
 - [ ] Ability Batching
 - [ ] how to set actor relevancy range ()
 - [ ] EffectActor的EndOverlap已经绑定到Server了，但是执行多人游戏依然会在客户端执行，是因为Prediction吗？
+- [ ] 如果一个类中包含一个UniquePtr，拷贝这个类的时候，ptr会完全拷贝吗？
+- [ ] c++子类可以在构造器的初始化列表中显示调用父类构造器，如果不指定会隐式调用父类构造器吗？
 
 ## Editor Skill
 - GA，Instance PerActor，每个Actor只会有一个GA创建

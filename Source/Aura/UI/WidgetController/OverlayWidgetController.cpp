@@ -2,9 +2,12 @@
 
 
 #include "OverlayWidgetController.h"
+#include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/DefaultAttributeSet.h"
+#include "DefaultGameplayTags.h"
 #include "Engine/Engine.h"
+#include "GameplayAbilitySpec.h"
 
 void UOverlayWidgetController::BroadcastInitialValues() {
     auto DefaultAttributeSet = CastChecked<UDefaultAttributeSet>(AttributeSet);
@@ -13,6 +16,33 @@ void UOverlayWidgetController::BroadcastInitialValues() {
     OnMaxHealthChanged.Broadcast(DefaultAttributeSet->GetMaxHealth());
     OnManaChanged.Broadcast(DefaultAttributeSet->GetMana());
     OnMaxManaChanged.Broadcast(DefaultAttributeSet->GetMaxMana());
+
+    // ABILITYLIST_SCOPE_LOCK();
+    for (const auto& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities()) {
+        FAbilityRow AbilityRow = FAbilityRow {};
+
+        UDefaultGameplayAbility *DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+
+        if (!DefaultGameplayAbility) { continue; }
+
+        TUniquePtr<FGameplayTag> AbilityTag = nullptr;
+        for (const auto& AssetTag : DefaultGameplayAbility->GetAssetTags()) {
+            if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
+                AbilityTag = MakeUnique<FGameplayTag>(AssetTag);
+                break;
+            }
+        }
+
+        if (!AbilityTag) { continue; }
+
+
+        AbilityRow.Name = DefaultGameplayAbility->AbilityName;
+        AbilityRow.Tag = *AbilityTag;
+        AbilityRow.CooldownTag = DefaultGameplayAbility->GetCooldownTags()->First();
+        AbilityRow.Level = DefaultGameplayAbility->GetAbilityLevel();
+
+        OnAbilityChanged.Broadcast(AbilityRow);
+    }
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies() {
@@ -27,7 +57,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxManaAttribute())
         .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxManaChanged.Broadcast(Data.NewValue); });
 
-    CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
+    UDefaultAbilitySystemComponent* DefaultASC = CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent);
+    DefaultASC->EffectAssetTags.AddLambda(
         [this](const FGameplayTagContainer& AssetTags) 
         {
             for (const auto& Tag : AssetTags) {
@@ -42,4 +73,17 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
             }
         }
     );
+
+    DefaultASC->LevelChangeDelegate.AddDynamic(this, &ThisClass::OnAbilityChangedCallback);
 }
+
+void UOverlayWidgetController::OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag) {
+    FAbilityRow AbilityRow = {};
+    AbilityRow.Name = Name;
+    AbilityRow.Tag = Tag;
+    AbilityRow.Level = Level;
+    AbilityRow.CooldownTag = CooldownTag;
+
+    OnAbilityChanged.Broadcast(AbilityRow);
+}
+

@@ -83,11 +83,18 @@ struct FDefaultGameplayTags {
     FGameplayTag Effect_HitReact;
     FGameplayTag Effect_EnvDamage;
     FGameplayTag Effect_StackingDamage;
+    FGameplayTag Effect_Stun;
 
     FGameplayTag Ability_Enemy_Melee;
     FGameplayTag Ability_Enemy_Range;
     FGameplayTag Ability_Enemy_Attack;
     FGameplayTag Ability_Pickup_EffectActor;
+    FGameplayTag Ability_Aura;
+    FGameplayTag Ability_Aura_FireBolt;
+    FGameplayTag Ability_Aura_LightningShock;
+
+    FGameplayTag PunishAbility_HitReact;
+    FGameplayTag PunishAbility_Stun;
 
     FGameplayTag Montage_Attack_Weapon;
     FGameplayTag Montage_Attack_RightHand;
@@ -95,6 +102,7 @@ struct FDefaultGameplayTags {
 
 
     FGameplayTag Cooldown_Fire_FireBolt;
+    FGameplayTag Cooldown_LightningShock;
 
     FGameplayTag GameplayCue_RangeImpact;
     FGameplayTag GameplayCue_Test;
@@ -102,6 +110,7 @@ struct FDefaultGameplayTags {
     // ----------------------- Set By Caller Tags ---------------------------
 
     FGameplayTag SetByCaller_GA_Cooldown;
+    FGameplayTag SetByCaller_GE_GainXp;
 
     // ----------------------- Set By Caller Tags End -----------------------
 

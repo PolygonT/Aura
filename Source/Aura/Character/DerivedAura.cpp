@@ -19,6 +19,8 @@ ADerivedAura::ADerivedAura() {
     bUseControllerRotationYaw = false;
     bUseControllerRotationPitch = false;
 
+    BaseWalkSpped = 600;
+
     // PlayerState = CreateDefaultSubobject<ADefaultPlayerState>("PlayerState");
 }
 
@@ -28,7 +30,6 @@ void ADerivedAura::PossessedBy(AController *NewController) {
 
     // Init Ability actor info for the Server
     InitAbilityActorInfo();
-    AddCharactorAbilities();
     // AddCharactorGameplayCues();
 }
 
@@ -45,6 +46,7 @@ void ADerivedAura::InitAbilityActorInfo() {
     AbilitySystemComponent = DefaultPlayerState->GetAbilitySystemComponent();
     AttributeSet = DefaultPlayerState->GetAttributeSet();
 
+    AddCharactorAbilities();
     CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
     if (auto DefaultPlayerController = Cast<ADefaultPlayerController>(GetController())) {
@@ -58,7 +60,4 @@ void ADerivedAura::InitAbilityActorInfo() {
     InitVitalAttributes();
 }
 
-int32 ADerivedAura::GetPlayerLevel() const {
-    auto DefaultPlayerState = GetPlayerStateChecked<ADefaultPlayerState>();
-    return DefaultPlayerState->GetPlayerLevel();
-}
+bool ADerivedAura::IsPlayer() const { return true; }

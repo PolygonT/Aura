@@ -22,7 +22,7 @@ public:
     void OnRep_PlayerState() override;
 
     // ===== CombatInterface
-    virtual int32 GetPlayerLevel() const override;
+    virtual bool IsPlayer() const override;
 
     // protected:
     // UPROPERTY()

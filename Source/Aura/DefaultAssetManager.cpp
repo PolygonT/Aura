@@ -5,6 +5,14 @@
 #include "AbilitySystemGlobals.h"
 #include "Engine/Engine.h"
 #include "DefaultGameplayTags.h"
+#include "UObject/ConstructorHelpers.h"
+
+UDefaultAssetManager::UDefaultAssetManager() {
+    static ConstructorHelpers::FClassFinder<UGameplayEffect> GainXpEffect(TEXT("/Game/Blueprints/AbilitySystem/GameplayEffects/GE_GainXp"));
+    if (GainXpEffect.Succeeded()) {
+        GainXpEffectClass = GainXpEffect.Class;
+    }
+}
 
 UDefaultAssetManager &UDefaultAssetManager::Get() {
     check(GEngine);
@@ -21,3 +29,4 @@ void UDefaultAssetManager::StartInitialLoading() {
     // This is required to use Target Data
     UAbilitySystemGlobals::Get().InitGlobalData();
 }
+

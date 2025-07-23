@@ -83,6 +83,7 @@ void ADefaultProjectile::OnSphereOverlap(
         // FScopedPredictionWindow PredictionWindow { SourceASC };
         FGameplayCueParameters CueParam {};
         CueParam.Location = GetActorLocation();
+        CueParam.SourceObject = this;
         SourceASC->ExecuteGameplayCue(FDefaultGameplayTags::Get().GameplayCue_RangeImpact, CueParam);
         // UAbilitySystemGlobals::Get().GetGameplayCueManager()->InvokeGameplayCueExecuted_WithParams(
         //     SourceASC, FDefaultGameplayTags::Get().GameplayCue_RangeImpact, SourceASC->ScopedPredictionKey, CueParam);
@@ -91,3 +92,10 @@ void ADefaultProjectile::OnSphereOverlap(
     Destroy();
 }
 
+UNiagaraSystem *ADefaultProjectile::GetImpactEffectd_Implementation() const {
+    return ImpactEffect;
+}
+
+USoundBase *ADefaultProjectile::GetImpactSound_Implementation() const {
+    return ImpactSound;
+}

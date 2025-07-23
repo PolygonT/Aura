@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "GameplayAbilitySpec.h"
 #include "UI/WidgetController/DefaultWidgetController.h"
 #include "UI/Widget/DefaultUserWidget.h"
 #include "GameplayTagContainer.h"
@@ -29,8 +30,26 @@ struct FUIWidgetRow : public FTableRowBase {
     TObjectPtr<UTexture2D> Image;
 };
 
+USTRUCT(BlueprintType) 
+struct FAbilityRow {
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FText Name;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FGameplayTag Tag;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    int32 Level;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FGameplayTag CooldownTag;
+
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFloatValueChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilitiesChangeSignature, FAbilityRow, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 
 
@@ -65,12 +84,21 @@ public:
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
     FOnFloatValueChangedSignature OnCooldownChanged;
 
+    UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
+    FOnAbilitiesChangeSignature OnAbilityChanged;
+
+    UFUNCTION()
+    void OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag);
+
   protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
     TObjectPtr<UDataTable> MessageWidgetDataTable;
 
     template<typename T>
     T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+
+private:
+    
 };
 
 template<typename T>

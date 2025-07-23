@@ -55,7 +55,6 @@ UCLASS()
 class AURA_API UDefaultAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
-	
 public:
     UDefaultAttributeSet();
 
@@ -167,6 +166,18 @@ public:
     FGameplayAttributeData LightningStacking;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, LightningStacking)
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Xp, Category = "Vital Attributes")
+    FGameplayAttributeData Xp;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, Xp)
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxXp, Category = "Vital Attributes")
+    FGameplayAttributeData MaxXp;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, MaxXp)
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Level, Category = "Vital Attributes")
+    FGameplayAttributeData Level;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, Level)
+
     /**
     * Meta Attributes (Does't Replicate)
     */
@@ -181,6 +192,10 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
     FGameplayAttributeData IncomingLightningStacking;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingLightningStacking)
+
+    UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+    FGameplayAttributeData IncomingXp;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingXp)
     
     TMap<FGameplayTag, FGameplayAttribute(*)()> AttributeGetMap;
     TMap<FGameplayTag, FGameplayAttribute> StackingTagAttributeMap;
@@ -266,6 +281,15 @@ public:
 
     UFUNCTION()
     void OnRep_MaxLightningStacking(const FGameplayAttributeData OldMaxLightningStacking) const;
+
+    UFUNCTION()
+    void OnRep_Xp(const FGameplayAttributeData OldXp) const;
+
+    UFUNCTION()
+    void OnRep_MaxXp(const FGameplayAttributeData OldMaxXp) const;
+
+    UFUNCTION()
+    void OnRep_Level(const FGameplayAttributeData OldLevel) const;
     //~ End Member function
 
 private:
@@ -277,4 +301,6 @@ private:
     void DealIncomingFireStacking(FEffectProperties& Props);
 
     void DealIncomingLightningStacking(FEffectProperties& Props);
+
+    void DealIncomingXp(FEffectProperties& Props);
 };

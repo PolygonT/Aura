@@ -4,7 +4,7 @@
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 #include "DefaultGameplayTags.h"
 #include "GameplayEffect.h"
-
+#include "Misc/ObjectThumbnail.h"
 
 const FGameplayTagContainer* UDefaultGameplayAbility::GetCooldownTags() const {
     FGameplayTagContainer* MutableTags = const_cast<FGameplayTagContainer*>(&TempCooldownTags);
@@ -35,3 +35,5 @@ void UDefaultGameplayAbility::ApplyCooldown(
         ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
     }
 }
+
+

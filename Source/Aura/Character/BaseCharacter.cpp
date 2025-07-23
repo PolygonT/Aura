@@ -2,6 +2,7 @@
 
 
 #include "BaseCharacter.h"
+#include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/DefaultAttributeSet.h"
 #include "Aura.h"
@@ -10,6 +11,7 @@
 #include "AbilitySystemComponent.h"
 #include "DefaultGameplayTags.h"
 #include "Engine/EngineTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Utils/GameplayAbilityUtils.h"
 #include "Materials/MaterialInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -27,11 +29,19 @@ ABaseCharacter::ABaseCharacter()
     Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
     Weapon->SetupAttachment(GetMesh(), "WeaponHandSocket");
     Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+    // Register Gameplay Event
+    if (HasAuthority()) {
+        AbilitySystemComponent->RegisterGameplayTagEvent(
+            FDefaultGameplayTags::Get().Effect_Stun, EGameplayTagEventType::NewOrRemoved)
+        .AddUObject(this, &ThisClass::Stun);
+    }
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const {
@@ -99,7 +109,7 @@ FVector ABaseCharacter::GetCombatSocketLocation_Implementation(const FGameplayTa
 
         return GetMesh()->GetSocketLocation(RightHandSocketName);
     } else {
-        checkf(false, TEXT("invalid MontageTag as Input Param"));
+        // checkf(false, TEXT("invalid MontageTag as Input Param"));
         // !not reachable!
         return {};
     }
@@ -180,4 +190,85 @@ TSubclassOf<UGameplayEffect> ABaseCharacter::GetOnLightningEffect() const {
     return OnLightningEffect;
 }
 
+TSubclassOf<UGameplayEffect> ABaseCharacter::GetLevelUpEffect() const { 
+    return LevelUpEffect; 
+}
+
 UAttributeSet *ABaseCharacter::GetAttributeSet() const { return AttributeSet; }
+
+const UGameplayAbility* ABaseCharacter::GetActivatableAbilityByTag(FGameplayTag& Tag, FGameplayAbilitySpec& OutAbilitySpec) {
+
+    // ABILITYLIST_SCOPE_LOCK();
+    for (const auto& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities()) {
+        UDefaultGameplayAbility *DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+
+        if (!DefaultGameplayAbility) { continue; }
+
+        for (const auto& AssetTag : DefaultGameplayAbility->GetAssetTags()) {
+            if (AssetTag.MatchesTagExact(Tag)) {
+                OutAbilitySpec = AbilitySpec;
+                return AbilitySpec.Ability;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+void ABaseCharacter::StartCombatState_Implementation(ECombatState InCombatState) {
+    CharacterState = ECharacterState::CombatState;
+    CombatState = InCombatState;
+    switch (InCombatState) {
+        case ECombatState::CastShockLoop :
+        case ECombatState::Stun :
+            GetCharacterMovement()->DisableMovement();
+        break;
+        default:
+        break;
+    }
+}
+
+void ABaseCharacter::EndCombatState_Implementation() {
+    switch (CombatState) {
+        case ECombatState::CastShockLoop :
+        case ECombatState::Stun :
+            GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+        break;
+        default:
+        break;
+    }
+
+    CharacterState = ECharacterState::MainState;
+    CombatState = ECombatState::Default;
+}
+
+void ABaseCharacter::Stun(const FGameplayTag GameplayTag, int32 NewCount) {
+    bool bStun = NewCount > 0;
+
+    if (bStun) {
+        ICombatInterface::Execute_StartCombatState(this, ECombatState::Stun);
+    } else {
+        ICombatInterface::Execute_EndCombatState(this);
+    }
+}
+
+int32 ABaseCharacter::GetCurrentMaxXp() const {
+    return MaxXpScalable.GetValueAtLevel(GetPlayerLevel());
+}
+
+int32 ABaseCharacter::GetPlayerLevel() const {
+    if (auto DefaultAS = Cast<UDefaultAttributeSet>(AttributeSet)) {
+        return DefaultAS->GetLevel();
+    }
+
+    return 0;
+}
+
+bool ABaseCharacter::IsPlayer() const
+{
+    return false;
+}
+
+float ABaseCharacter::GetXpDrop() const {
+    return XpDropScalable.GetValueAtLevel(GetPlayerLevel());
+}

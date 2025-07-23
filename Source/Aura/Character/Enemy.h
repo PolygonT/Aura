@@ -34,6 +34,7 @@ public:
 
     // ==== Combat Interface ====
     virtual int32 GetPlayerLevel() const override;
+    virtual bool IsPlayer() const override;
 
     virtual void Die() override;
 
@@ -52,8 +53,6 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Combat")
     bool bHitReacting { false };
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-    float BaseWalkSpped { 250.f };
 
     UPROPERTY(BlueprintReadOnly, Category = "Combat")
     TObjectPtr<AActor> CombatTarget;

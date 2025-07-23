@@ -101,7 +101,6 @@ void ADefaultPlayerController::AutoRun() {
             ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
         const FVector Direction = Spline->FindDirectionClosestToWorldLocation(
             ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
-        ;
 
         ControlledPawn->AddMovementInput(Direction);
 

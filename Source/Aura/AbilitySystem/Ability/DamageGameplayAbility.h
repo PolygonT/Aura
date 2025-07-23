@@ -15,8 +15,10 @@ class AURA_API UDamageGameplayAbility : public UDefaultGameplayAbility
 	GENERATED_BODY()
 	
 public:
-    UFUNCTION(BlueprintCallable)
-    void CauseDamage(AActor *TargetActor);
+  UDamageGameplayAbility();
+
+  UFUNCTION(BlueprintCallable)
+  void CauseDamage(AActor *TargetActor);
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -25,6 +27,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modifiers")
     FScalableFloat AbilityModifierMagnitude;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
     TMap<FGameplayTag, FScalableFloat> DamageTypesMap;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
 };

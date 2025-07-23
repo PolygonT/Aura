@@ -7,6 +7,7 @@
 #include "DefaultAbilitySystemComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /* AssetTags */);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAbilityLevelChangeSignature, FText, Name, FGameplayTag, Tag, int32, Level, FGameplayTag, CooldownTag);
 
 /**
  * 
@@ -31,8 +32,19 @@ public:
 
     void AbilityInputTagReleased(const FGameplayTag &InputTag);
 
-  protected:
+    FOnAbilityLevelChangeSignature& GetOnLevelChangeDelegate();
+
+    UFUNCTION(BlueprintCallable)
+    void LevelUpAbility(TSubclassOf<UGameplayAbility> AbilityClass);
+
+    UPROPERTY()
+    FOnAbilityLevelChangeSignature LevelChangeDelegate;
+
+protected:
+    
+
     void EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, 
             const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
+private:
 
 };

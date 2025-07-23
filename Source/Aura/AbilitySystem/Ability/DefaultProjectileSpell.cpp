@@ -58,9 +58,9 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
 
 
     // Assign Set By Caller
-    for (auto& Pair : DamageTypesMap) {
-        const float ScaledDamage = Pair.Value.GetValueAtLevel(CombatInterface->GetPlayerLevel());
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Pair.Key, ScaledDamage);
+    for (auto& [DamageTypeTag, DamageValueScalable] : DamageTypesMap) {
+        const float ScaledDamage = DamageValueScalable.GetValueAtLevel(CombatInterface->GetPlayerLevel());
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageTypeTag, ScaledDamage);
     }
 
     Projectile->DamageEffectSpecHandle = SpecHandle;

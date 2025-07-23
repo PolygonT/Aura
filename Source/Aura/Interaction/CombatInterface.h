@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "ScalableFloat.h"
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
@@ -26,6 +27,14 @@ struct FTaggedMontage {
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     USoundBase* ImpactSound;
 };
+
+UENUM(BlueprintType)
+enum class ECombatState : uint8 {
+    Default,
+    CastShockLoop,
+    Stun
+};
+
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
@@ -78,4 +87,20 @@ public:
     virtual TSubclassOf<UGameplayEffect> GetOnFireEffect() const = 0;
 
     virtual TSubclassOf<UGameplayEffect> GetOnLightningEffect() const = 0;
+
+    virtual TSubclassOf<UGameplayEffect> GetLevelUpEffect() const = 0;
+
+    virtual float GetXpDrop() const = 0;
+
+    virtual bool IsPlayer() const = 0;
+
+    // virtual TSubclassOf<UGameplayEffect> Get
+
+    virtual int32 GetCurrentMaxXp() const = 0;
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    void StartCombatState(ECombatState CombatState);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+    void EndCombatState();
 };

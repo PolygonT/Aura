@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffectTypes.h"
+#include "Interaction/ImpactInterface.h"
 #include "DefaultProjectile.generated.h"
 
 class USphereComponent;
@@ -16,7 +17,7 @@ class UGameplayEffect;
 class UDefaultGameplayAbility;
 
 UCLASS()
-class AURA_API ADefaultProjectile : public AActor
+class AURA_API ADefaultProjectile : public AActor, public IImpactInterface
 {
 	GENERATED_BODY()
 	
@@ -31,6 +32,11 @@ public:
 
     UPROPERTY()
     FGameplayEffectSpecHandle DamageEffectSpecHandle;
+
+    // ============Impact Interface Start===========
+    virtual UNiagaraSystem *GetImpactEffectd_Implementation() const override;
+    virtual USoundBase *GetImpactSound_Implementation() const override;
+    // ============Impact Interface End=============
 
 protected:
 
