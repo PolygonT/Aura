@@ -87,6 +87,22 @@ public:
     UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
     FOnAbilitiesChangeSignature OnAbilityChanged;
 
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnLevelChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnFireStackingChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnLightningStackingChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnMaxFireStackingChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnMaxLightningStackingChanged;
+
+
     UFUNCTION()
     void OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag);
 

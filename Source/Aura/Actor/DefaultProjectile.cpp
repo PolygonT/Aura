@@ -38,6 +38,15 @@ ADefaultProjectile::ADefaultProjectile()
     ProjectileMovement->InitialSpeed = 550.f;
     ProjectileMovement->MaxSpeed = 550.f;
     ProjectileMovement->ProjectileGravityScale = 0.f;
+
+    for (auto& [DamageTypeTag, _] : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
+        FGameplayTag& DamageType = DamageTypeTag;
+        DamageTypesMap.Add(DamageType, {});
+    }
+
+    for (const auto& [StackingTypeTag, _] : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
+        StackingTypesMap.Add(StackingTypeTag, {});
+    }
 }
 
 void ADefaultProjectile::BeginPlay()
@@ -98,4 +107,12 @@ UNiagaraSystem *ADefaultProjectile::GetImpactEffectd_Implementation() const {
 
 USoundBase *ADefaultProjectile::GetImpactSound_Implementation() const {
     return ImpactSound;
+}
+
+TMap<FGameplayTag, FScalableFloat> ADefaultProjectile::GetDamageTypesMap() const {
+    return DamageTypesMap;
+}
+
+TMap<FGameplayTag, FScalableFloat> ADefaultProjectile::GetStackingTypesMap() const {
+    return StackingTypesMap;
 }

@@ -39,6 +39,9 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Common Class Default")
     TSubclassOf<UGameplayEffect> VitalAttributesEffect;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Common Class Default")
+    TSubclassOf<UGameplayEffect> ReducingStackingEffect;
+
     UPROPERTY(EditDefaultsOnly, Category = "Character Class Default")
     TMap<ECharacterClass, FCharacterClassDefaultInfo> CharacterClassMap;
 

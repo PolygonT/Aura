@@ -32,6 +32,7 @@
 - [ ] 实现经验条和升级, 升级后文字提示
 - [ ] 开始游戏界面和载入界面
 - [ ] 升级后最大血量没有改变
+- [ ] stacking值为0后，infinite effect还在一直执行
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate

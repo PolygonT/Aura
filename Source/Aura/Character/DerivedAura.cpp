@@ -58,6 +58,7 @@ void ADerivedAura::InitAbilityActorInfo() {
     InitPrimaryAttributes();
     InitSecondaryAttributes();
     InitVitalAttributes();
+    InitReducingStackingEffect();
 }
 
 bool ADerivedAura::IsPlayer() const { return true; }

@@ -52,15 +52,22 @@ void UDefaultProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLoc
 
     UAbilitySystemComponent* SourceASC = 
         UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+    FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 
-   const FGameplayEffectSpecHandle SpecHandle = 
-        SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+    ContextHandle.AddSourceObject(Projectile);
+    const FGameplayEffectSpecHandle SpecHandle = 
+        SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), ContextHandle);
 
 
     // Assign Set By Caller
     for (auto& [DamageTypeTag, DamageValueScalable] : DamageTypesMap) {
-        const float ScaledDamage = DamageValueScalable.GetValueAtLevel(CombatInterface->GetPlayerLevel());
+        const float ScaledDamage = DamageValueScalable.GetValueAtLevel(GetAbilityLevel());
         UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageTypeTag, ScaledDamage);
+    }
+
+    for (auto& [StackingTypeTag, StackingTypeValueScalable] : StackingTypesMap) {
+        const float ScaledStackingVal = StackingTypeValueScalable.GetValueAtLevel(GetAbilityLevel());
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, StackingTypeTag, ScaledStackingVal);
     }
 
     Projectile->DamageEffectSpecHandle = SpecHandle;

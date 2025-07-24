@@ -78,6 +78,14 @@ void ABaseCharacter::InitVitalAttributes() {
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
+void ABaseCharacter::InitReducingStackingEffect() {
+    check(CharacterClassInfo);
+    check(IsValid(GetAbilitySystemComponent()));
+
+    auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, CharacterClassInfo->ReducingStackingEffect, 1.f);
+    GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
+}
+
 void ABaseCharacter::AddCharactorGameplayCues() {
     GetAbilitySystemComponent()->AddGameplayCue_MinimalReplication(FDefaultGameplayTags::Get().GameplayCue_Test);
 }
@@ -272,3 +280,4 @@ bool ABaseCharacter::IsPlayer() const
 float ABaseCharacter::GetXpDrop() const {
     return XpDropScalable.GetValueAtLevel(GetPlayerLevel());
 }
+

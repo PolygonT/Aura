@@ -29,13 +29,13 @@ AEffectActor::AEffectActor()
         CollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEndOverlap);
     }
 
-    for (auto& Pair : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
-        FGameplayTag& DamageType = Pair.Key;
+    for (auto& [DamageTypeTag, _] : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
+        FGameplayTag& DamageType = DamageTypeTag;
         DamageTypesMap.Add(DamageType, {});
     }
 
-    for (const auto& Pair : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
-        StackingTypesMap.Add(Pair.Key, {});
+    for (const auto& [StackingTypeTag, _] : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
+        StackingTypesMap.Add(StackingTypeTag, {});
     }
 }
 

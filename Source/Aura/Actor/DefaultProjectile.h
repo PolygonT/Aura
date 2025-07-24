@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffectTypes.h"
+#include "Interaction/EnvDamageInterface.h"
 #include "Interaction/ImpactInterface.h"
 #include "DefaultProjectile.generated.h"
 
@@ -17,7 +18,7 @@ class UGameplayEffect;
 class UDefaultGameplayAbility;
 
 UCLASS()
-class AURA_API ADefaultProjectile : public AActor, public IImpactInterface
+class AURA_API ADefaultProjectile : public AActor, public IImpactInterface, public IEnvDamageInterface
 {
 	GENERATED_BODY()
 	
@@ -33,10 +34,22 @@ public:
     UPROPERTY()
     FGameplayEffectSpecHandle DamageEffectSpecHandle;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    TMap<FGameplayTag, FScalableFloat> DamageTypesMap;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+    TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
+
     // ============Impact Interface Start===========
     virtual UNiagaraSystem *GetImpactEffectd_Implementation() const override;
     virtual USoundBase *GetImpactSound_Implementation() const override;
     // ============Impact Interface End=============
+
+    // ============Env Damge Interface Start=============
+    virtual TMap<FGameplayTag, FScalableFloat> GetDamageTypesMap() const override;
+
+    virtual TMap<FGameplayTag, FScalableFloat> GetStackingTypesMap() const override;
+    // ============Env Damge Interface End===============
 
 protected:
 

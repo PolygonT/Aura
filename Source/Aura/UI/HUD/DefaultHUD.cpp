@@ -32,7 +32,7 @@ void ADefaultHUD::InitOverlay(
     checkf(OverlayWidgetClass, TEXT("OverlayWidget not set, please fill BP_DefaultHUD"));
     checkf(OverlayWidgetControllerClass, TEXT("OverlayWidgetControllerClass not set, please fill BP_DefaultHUD"));
 
-    auto Widget = CreateWidget<UDefaultUserWidget>(GetWorld(), OverlayWidgetClass);
+    auto Widget = CreateWidget<UDefaultUserWidget>(AC, OverlayWidgetClass);
 
     auto Param = FWidgetControllerParams(AC, PS, ASC, AS);
 

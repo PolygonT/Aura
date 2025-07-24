@@ -338,10 +338,10 @@ void UDefaultAttributeSet::DealIncomingFireStacking(FEffectProperties &Props) {
     const float LocalIncomingFireStacking = GetIncomingFireStacking();
     SetIncomingFireStacking(0.f);
 
-    if (LocalIncomingFireStacking <= 0.f) { return; }
+    if (LocalIncomingFireStacking == 0.f) { return; }
 
-    const float NewFireStacking = GetFireStacking() + LocalIncomingFireStacking;
-    SetFireStacking(FMath::Clamp(NewFireStacking, 0.f, GetMaxFireStacking()));
+    const float NewFireStacking = FMath::Clamp(GetFireStacking() + LocalIncomingFireStacking, 0.f, GetMaxFireStacking());
+    SetFireStacking(NewFireStacking);
 
     if (GetFireStacking() == GetMaxFireStacking()) {
         // Apply OnFire Effect
@@ -376,7 +376,7 @@ void UDefaultAttributeSet::DealIncomingLightningStacking(
     const float LocalIncomingLightningStacking = GetIncomingLightningStacking();
     SetIncomingLightningStacking(0.f);
 
-    if (LocalIncomingLightningStacking <= 0.f) { return; }
+    if (LocalIncomingLightningStacking == 0.f) { return; }
 
     const float NewLightningStacking = GetLightningStacking() + LocalIncomingLightningStacking;
     SetLightningStacking(FMath::Clamp(NewLightningStacking, 0.f, GetMaxLightningStacking()));

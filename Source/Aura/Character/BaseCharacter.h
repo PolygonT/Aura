@@ -153,6 +153,8 @@ public:
 
     void InitVitalAttributes();
 
+    void InitReducingStackingEffect();
+
     void AddCharactorAbilities();
 
     void AddCharactorGameplayCues();
