@@ -35,10 +35,15 @@ public:
     FOnAbilityLevelChangeSignature& GetOnLevelChangeDelegate();
 
     UFUNCTION(BlueprintCallable)
+    void LevelUpAbilityWithTag(FGameplayTag Tag);
+
+    UFUNCTION(BlueprintCallable)
     void LevelUpAbility(TSubclassOf<UGameplayAbility> AbilityClass);
 
+    void BroadcastAllAbilities();
+
     UPROPERTY()
-    FOnAbilityLevelChangeSignature LevelChangeDelegate;
+    FOnAbilityLevelChangeSignature AbilityInfoDelegate;
 
 protected:
     
@@ -47,4 +52,7 @@ protected:
             const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
 private:
 
+    const FGameplayTag* AbilitySpecHasTag(const FGameplayAbilitySpec& AbilitySpec, FGameplayTag Tag, bool ExactMatch);
+
+    void LevelUpAbilityInternal(FGameplayAbilitySpec &AbilitySpec);
 };

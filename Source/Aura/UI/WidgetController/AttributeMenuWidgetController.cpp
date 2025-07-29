@@ -27,6 +27,8 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies() {
         OnAttributeInfoChangedDelegate.Broadcast(Pair.Value);
     }
 
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetAttributePointAttribute())
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnAttributePointChanged.Broadcast(Data.NewValue); });
 }
 
 void UAttributeMenuWidgetController::BroadcastInitialValues() {
@@ -39,4 +41,20 @@ void UAttributeMenuWidgetController::BroadcastInitialValues() {
         OnAttributeInfoChangedDelegate.Broadcast(Pair.Value);
     }
 
+    OnAttributePointChanged.Broadcast(DefaultAttributeSet->GetAttributePoint());
+
 }
+
+void UAttributeMenuWidgetController::LevelUpVitalAttributeByTag(FGameplayTag AttributeTag) {
+
+    auto DefaultAttributeSet = CastChecked<UDefaultAttributeSet>(AttributeSet);
+    FGameplayAttributeData Data;
+
+    if (!DefaultAttributeSet->PrimaryAttributeLevelUpMap.Contains(AttributeTag)) {
+        return;
+    }
+
+    auto LevelUpFunc = DefaultAttributeSet->PrimaryAttributeLevelUpMap[AttributeTag];
+    LevelUpFunc();
+}
+

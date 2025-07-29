@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/WidgetController/DefaultWidgetController.h"
 #include "AttributeMenuWidgetController.generated.h"
 
@@ -27,10 +28,16 @@ public:
 
 protected:
 
-    UPROPERTY(BlueprintAssignable)
+    UPROPERTY(BlueprintAssignable, Category = "Attributes")
     FOnAttributeInfoChangeSignature OnAttributeInfoChangedDelegate;
 
-private:
+    UPROPERTY(BlueprintAssignable, Category = "Attributes")
+    FOnFloatValueChangedSignature OnAttributePointChanged;
+
+    UFUNCTION(BlueprintCallable, Category = "Attributes")
+    void LevelUpVitalAttributeByTag(FGameplayTag AttributeTag);
+
+  private:
     UPROPERTY(EditDefaultsOnly)
     TObjectPtr<UAttributeInfo> AttributeInfo;
 };

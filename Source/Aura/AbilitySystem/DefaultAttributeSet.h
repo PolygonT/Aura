@@ -178,6 +178,10 @@ public:
     FGameplayAttributeData Level;
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, Level)
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_AttributePoint, Category = "Vital Attributes")
+    FGameplayAttributeData AttributePoint;
+    ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, AttributePoint)
+
     /**
     * Meta Attributes (Does't Replicate)
     */
@@ -198,6 +202,7 @@ public:
     ATTRIBUTE_ACCESSORS(UDefaultAttributeSet, IncomingXp)
     
     TMap<FGameplayTag, FGameplayAttribute(*)()> AttributeGetMap;
+    TMap<FGameplayTag, TFunction<void ()>> PrimaryAttributeLevelUpMap;
     TMap<FGameplayTag, FGameplayAttribute> StackingTagAttributeMap;
 
     //~ End Member viriables
@@ -210,6 +215,9 @@ public:
         const FGameplayEffectModCallbackData &Data) override;
 
     //~ Start Member function
+
+    bool SpendAttributePoint();
+
     UFUNCTION()
     void OnRep_Health(const FGameplayAttributeData OldHealth) const;
 
@@ -290,6 +298,9 @@ public:
 
     UFUNCTION()
     void OnRep_Level(const FGameplayAttributeData OldLevel) const;
+
+    UFUNCTION()
+    void OnRep_AttributePoint(const FGameplayAttributeData OldLevel) const;
     //~ End Member function
 
 private:

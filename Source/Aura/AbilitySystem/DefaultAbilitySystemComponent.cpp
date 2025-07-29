@@ -78,30 +78,91 @@ void UDefaultAbilitySystemComponent::AbilityInputTagReleased(
     }
 }
 
+void UDefaultAbilitySystemComponent::LevelUpAbilityWithTag(FGameplayTag Tag) {
+    ABILITYLIST_SCOPE_LOCK();
+    for (auto& AbilitySpec : ActivatableAbilities.Items) {
+        if (AbilitySpecHasTag(AbilitySpec, Tag, true)) {
+            LevelUpAbilityInternal(AbilitySpec);
+
+            return;
+        }
+    }
+}
+
 void UDefaultAbilitySystemComponent::LevelUpAbility(TSubclassOf<UGameplayAbility> AbilityClass) {
     FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromClass(AbilityClass);
     if (!AbilitySpec) { return; }
-    AbilitySpec->Level += 1;
 
-    MarkAbilitySpecDirty(*AbilitySpec);
+    LevelUpAbilityInternal(*AbilitySpec);
+}
 
-    
-    UDefaultGameplayAbility* DefaultGA = Cast<UDefaultGameplayAbility>(AbilitySpec->Ability);
-    TUniquePtr<FGameplayTag> AbilityAssetTag = nullptr;
-    for (const auto& AssetTag : DefaultGA->GetAssetTags()) {
-        if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
-            AbilityAssetTag = MakeUnique<FGameplayTag>(AssetTag);
-            break;
+
+void UDefaultAbilitySystemComponent::BroadcastAllAbilities() {
+    ABILITYLIST_SCOPE_LOCK();
+    for (const auto& AbilitySpec : ActivatableAbilities.Items) {
+        UDefaultGameplayAbility *DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+
+        if (!DefaultGameplayAbility) { continue; }
+
+        const FGameplayTag* AbilityAssetTag = AbilitySpecHasTag(AbilitySpec, FDefaultGameplayTags::Get().Ability_Aura, false);
+        if (!AbilityAssetTag) {
+            continue;
         }
-    }
 
-    if (!AbilityAssetTag) { return; }
-    
-    LevelChangeDelegate.Broadcast(DefaultGA->AbilityName, *AbilityAssetTag, AbilitySpec->Level, DefaultGA->CooldownTags.First());
+        AbilityInfoDelegate.Broadcast(
+            DefaultGameplayAbility->AbilityName, *AbilityAssetTag,
+            AbilitySpec.Level,
+            DefaultGameplayAbility->CooldownTags.First());
+    }
 }
 
 FOnAbilityLevelChangeSignature&
 UDefaultAbilitySystemComponent::GetOnLevelChangeDelegate() {
-    return LevelChangeDelegate;
+    return AbilityInfoDelegate;
+}
+
+const FGameplayTag* UDefaultAbilitySystemComponent::AbilitySpecHasTag(const FGameplayAbilitySpec& AbilitySpec, FGameplayTag Tag, bool ExactMatch) {
+    UDefaultGameplayAbility* DefaultGA = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+    if (!DefaultGA) {
+        return nullptr;
+    }
+
+    const FGameplayTag* AbilityAssetTag = nullptr;
+
+    for (const auto& AssetTag : DefaultGA->GetAssetTags()) {
+        if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
+            AbilityAssetTag = &AssetTag;
+            break;
+        }
+    }
+
+    if (!AbilityAssetTag) {
+        return nullptr;
+    }
+
+    if (ExactMatch) {
+        return AbilityAssetTag->MatchesTagExact(Tag) ? AbilityAssetTag : nullptr;
+    } else {
+        return AbilityAssetTag->MatchesTag(Tag) ? AbilityAssetTag : nullptr;
+    }
+}
+
+void UDefaultAbilitySystemComponent::LevelUpAbilityInternal(
+    FGameplayAbilitySpec &AbilitySpec) {
+
+    AbilitySpec.Level += 1;
+
+    MarkAbilitySpecDirty(AbilitySpec);
+
+    
+    UDefaultGameplayAbility* DefaultGA = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+
+    const FGameplayTag* AbilityAssetTag = AbilitySpecHasTag(AbilitySpec, FDefaultGameplayTags::Get().Ability_Aura, false);
+
+    if (!AbilityAssetTag) {
+        return;
+    }
+    
+    AbilityInfoDelegate.Broadcast(DefaultGA->AbilityName, *AbilityAssetTag, AbilitySpec.Level, DefaultGA->CooldownTags.First());
 }
 

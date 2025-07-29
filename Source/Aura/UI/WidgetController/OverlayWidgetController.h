@@ -30,26 +30,6 @@ struct FUIWidgetRow : public FTableRowBase {
     TObjectPtr<UTexture2D> Image;
 };
 
-USTRUCT(BlueprintType) 
-struct FAbilityRow {
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FText Name;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FGameplayTag Tag;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    int32 Level;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    FGameplayTag CooldownTag;
-
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFloatValueChangedSignature, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilitiesChangeSignature, FAbilityRow, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 
 
@@ -81,11 +61,11 @@ public:
     UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
     FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
-    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-    FOnFloatValueChangedSignature OnCooldownChanged;
+    // UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    // FOnFloatValueChangedSignature OnCooldownChanged;
 
-    UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
-    FOnAbilitiesChangeSignature OnAbilityChanged;
+    // UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
+    // FOnAbilitiesChangeSignature OnAbilityChanged;
 
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
     FOnFloatValueChangedSignature OnLevelChanged;
@@ -102,9 +82,18 @@ public:
     UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
     FOnFloatValueChangedSignature OnMaxLightningStackingChanged;
 
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnXpChanged;
 
-    UFUNCTION()
-    void OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag);
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnMaxXpChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+    FOnFloatValueChangedSignature OnAttributePointChanged;
+
+
+    // UFUNCTION()
+    // void OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag);
 
   protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")

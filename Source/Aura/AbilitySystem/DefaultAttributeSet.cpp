@@ -52,6 +52,23 @@ UDefaultAttributeSet::UDefaultAttributeSet() {
     AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_MaxFireStacking      , UDefaultAttributeSet::GetResistancePhysicalAttribute);
     AttributeGetMap.Add(FDefaultGameplayTags::Get().Attributes_Secondary_MaxLightningStacking , UDefaultAttributeSet::GetResistancePhysicalAttribute);
 
+    PrimaryAttributeLevelUpMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Strength, [this] () {
+        if (!SpendAttributePoint()) { return; }
+        SetStrength(GetStrength() + 1);
+    });
+    PrimaryAttributeLevelUpMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Resilience, [this] () {
+        if (!SpendAttributePoint()) { return; }
+        SetResilience(GetResilience() + 1);
+    });
+    PrimaryAttributeLevelUpMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Intelligence, [this] () {
+        if (!SpendAttributePoint()) { return; }
+        SetIntelligence(GetIntelligence() + 1);
+    });
+    PrimaryAttributeLevelUpMap.Add(FDefaultGameplayTags::Get().Attributes_Primary_Vigor, [this] () {
+        if (!SpendAttributePoint()) { return; }
+        SetVigor(GetVigor() + 1);
+    });
+
 
     StackingTagAttributeMap.Add(FDefaultGameplayTags::Get().Stacking_Fire, UDefaultAttributeSet::GetIncomingFireStackingAttribute());
     StackingTagAttributeMap.Add(FDefaultGameplayTags::Get().Stacking_Lightning, UDefaultAttributeSet::GetIncomingLightningStackingAttribute());
@@ -88,6 +105,7 @@ void UDefaultAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, Xp, COND_None, REPNOTIFY_Always);
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, MaxXp, COND_None, REPNOTIFY_Always);
     DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, Level, COND_None, REPNOTIFY_Always);
+    DOREPLIFETIME_CONDITION_NOTIFY(UDefaultAttributeSet, AttributePoint, COND_None, REPNOTIFY_Always);
 }
 
 void UDefaultAttributeSet::PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue) {
@@ -97,6 +115,10 @@ void UDefaultAttributeSet::PreAttributeChange(const FGameplayAttribute &Attribut
 
     if (Attribute == GetManaAttribute()) {
         NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+    }
+
+    if (Attribute == GetAttributePointAttribute()) {
+        NewValue = FMath::Clamp(NewValue, 0.f, TNumericLimits<int32>::Max());
     }
 
     Super::PreAttributeChange(Attribute, NewValue);
@@ -111,11 +133,14 @@ void UDefaultAttributeSet::PostGameplayEffectExecute(
 
     if (Data.EvaluatedData.Attribute == GetHealthAttribute()) {
         SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
-        UE_LOG(LogTemp, Warning, TEXT("Health Attribute changed, New Value [%f]."), GetHealth());
     }
 
     if (Data.EvaluatedData.Attribute == GetManaAttribute()) {
         SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+    }
+
+    if (Data.EvaluatedData.Attribute == GetAttributePointAttribute()) {
+        SetAttributePoint(FMath::Clamp(GetAttributePoint(), 0.f, TNumericLimits<int32>::Max()));
     }
 
     if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute()) {
@@ -276,6 +301,10 @@ void UDefaultAttributeSet::OnRep_Level(const FGameplayAttributeData OldLevel) co
     GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, Level, OldLevel);
 }
 
+void UDefaultAttributeSet::OnRep_AttributePoint(const FGameplayAttributeData OldLevel) const {
+    GAMEPLAYATTRIBUTE_REPNOTIFY(UDefaultAttributeSet, AttributePoint, OldLevel);
+}
+
 
 void UDefaultAttributeSet::DealIncomingDamage(FEffectProperties& Props) {
     const float LocalIncomingDamge = GetIncomingDamage();
@@ -291,7 +320,7 @@ void UDefaultAttributeSet::DealIncomingDamage(FEffectProperties& Props) {
             ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
             if (CombatInterface) {
                 float XpDrop = CombatInterface->GetXpDrop();
-                if (!CombatInterface->IsPlayer() && XpDrop > 0.f) {
+                if (!CombatInterface->IsPlayer() && XpDrop > 0.f && Props.SourceAbilitySystemComponent) {
                     // Gain Xp to Player
                     auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
                         nullptr, Props.SourceAbilitySystemComponent, Props.TargetAbilitySystemComponent, UDefaultAssetManager::Get().GainXpEffectClass);
@@ -330,6 +359,7 @@ void UDefaultAttributeSet::DealIncomingDamage(FEffectProperties& Props) {
 
 void UDefaultAttributeSet::DealIncomingFireStacking(FEffectProperties &Props) {
     auto& TargetASC = Props.TargetAbilitySystemComponent;
+    auto& SourceASC = Props.SourceAbilitySystemComponent;
 
     // if (TargetASC->HasMatchingGameplayTag(FDefaultGameplayTags::Get().Stacking_Fire_Triggered)) {
     //     // 如果触发了效果，不再叠加值 (这个逻辑转移到ExeCalc里)
@@ -340,6 +370,8 @@ void UDefaultAttributeSet::DealIncomingFireStacking(FEffectProperties &Props) {
 
     if (LocalIncomingFireStacking == 0.f) { return; }
 
+    if (LocalIncomingFireStacking < 0.f && GetFireStacking() == 0.f) { return; }
+
     const float NewFireStacking = FMath::Clamp(GetFireStacking() + LocalIncomingFireStacking, 0.f, GetMaxFireStacking());
     SetFireStacking(NewFireStacking);
 
@@ -347,7 +379,7 @@ void UDefaultAttributeSet::DealIncomingFireStacking(FEffectProperties &Props) {
         // Apply OnFire Effect
         if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor)) {
             auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
-                nullptr, TargetASC, TargetASC, CombatInterface->GetOnFireEffect());
+                nullptr, SourceASC, TargetASC, CombatInterface->GetOnFireEffect());
 
             UObject* SourceObject = Props.EffectContextHandle.GetSourceObject();
             
@@ -378,12 +410,15 @@ void UDefaultAttributeSet::DealIncomingLightningStacking(
 
     if (LocalIncomingLightningStacking == 0.f) { return; }
 
+    if (LocalIncomingLightningStacking < 0.f && GetLightningStacking() == 0.f) { return; }
+
     const float NewLightningStacking = GetLightningStacking() + LocalIncomingLightningStacking;
     SetLightningStacking(FMath::Clamp(NewLightningStacking, 0.f, GetMaxLightningStacking()));
 
     if (GetLightningStacking() == GetMaxLightningStacking()) {
         // Activate Stun Ability
         auto& TargetASC = Props.TargetAbilitySystemComponent;
+        auto& SourceASC = Props.SourceAbilitySystemComponent;
 
         if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor)) {
             // auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
@@ -401,18 +436,20 @@ void UDefaultAttributeSet::DealIncomingLightningStacking(
 
 void UDefaultAttributeSet::DealIncomingXp(FEffectProperties& Props) {
     ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+    auto& TargetASC = Props.TargetAbilitySystemComponent;
 
     if (!CombatInterface || !CombatInterface->IsPlayer()) { return; }
     const float LocalIncomingXp = GetIncomingXp();
+    const float LocalMaxXp = GetMaxXp();
     SetIncomingXp(0.f);
 
     if (LocalIncomingXp <= 0.f) { return; }
 
-    const float NewXp = FMath::Clamp(GetXp() + LocalIncomingXp, 0.f, GetMaxXp());
+
+    const float NewXp = FMath::Clamp(GetXp() + LocalIncomingXp, 0.f, LocalMaxXp);
     SetXp(NewXp);
 
-    if (GetXp() == GetMaxXp()) {
-        auto& TargetASC = Props.TargetAbilitySystemComponent;
+    if (GetXp() == LocalMaxXp) {
         // apply level up effect
         auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
             nullptr, TargetASC, TargetASC, CombatInterface->GetLevelUpEffect()
@@ -423,5 +460,26 @@ void UDefaultAttributeSet::DealIncomingXp(FEffectProperties& Props) {
         SetXp(0.f);
         SetMaxXp(CombatInterface->GetCurrentMaxXp());
     }
+
+    // 溢出经验重新apply GE
+    if (LocalIncomingXp > LocalMaxXp) {
+        float OverflowXp = LocalIncomingXp - LocalMaxXp;
+        auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
+            nullptr, TargetASC, TargetASC, UDefaultAssetManager::Get().GainXpEffectClass
+        );
+
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(*EffectSpec, FDefaultGameplayTags::Get().SetByCaller_GE_GainXp, OverflowXp);
+
+        TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpec->Data);
+    }
+}
+
+bool UDefaultAttributeSet::SpendAttributePoint() {
+    if (GetAttributePoint() >= 1.f) {
+        SetAttributePoint(GetAttributePoint() - 1);
+        return true;
+    }
+
+    return false;
 }
 

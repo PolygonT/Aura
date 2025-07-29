@@ -5,7 +5,7 @@
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/DefaultAttributeSet.h"
-#include "DefaultGameplayTags.h"
+// #include "DefaultGameplayTags.h"
 #include "Engine/Engine.h"
 #include "GameplayAbilitySpec.h"
 
@@ -16,33 +16,34 @@ void UOverlayWidgetController::BroadcastInitialValues() {
     OnMaxHealthChanged.Broadcast(DefaultAttributeSet->GetMaxHealth());
     OnManaChanged.Broadcast(DefaultAttributeSet->GetMana());
     OnMaxManaChanged.Broadcast(DefaultAttributeSet->GetMaxMana());
+    OnAttributePointChanged.Broadcast(DefaultAttributeSet->GetAttributePoint());
 
     // ABILITYLIST_SCOPE_LOCK();
-    for (const auto& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities()) {
-        FAbilityRow AbilityRow = FAbilityRow {};
-
-        UDefaultGameplayAbility *DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
-
-        if (!DefaultGameplayAbility) { continue; }
-
-        TUniquePtr<FGameplayTag> AbilityTag = nullptr;
-        for (const auto& AssetTag : DefaultGameplayAbility->GetAssetTags()) {
-            if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
-                AbilityTag = MakeUnique<FGameplayTag>(AssetTag);
-                break;
-            }
-        }
-
-        if (!AbilityTag) { continue; }
-
-
-        AbilityRow.Name = DefaultGameplayAbility->AbilityName;
-        AbilityRow.Tag = *AbilityTag;
-        AbilityRow.CooldownTag = DefaultGameplayAbility->GetCooldownTags()->First();
-        AbilityRow.Level = DefaultGameplayAbility->GetAbilityLevel();
-
-        OnAbilityChanged.Broadcast(AbilityRow);
-    }
+    // for (const auto& AbilitySpec : AbilitySystemComponent->GetActivatableAbilities()) {
+    //     FAbilityRow AbilityRow = FAbilityRow {};
+    //
+    //     UDefaultGameplayAbility *DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability);
+    //
+    //     if (!DefaultGameplayAbility) { continue; }
+    //
+    //     TUniquePtr<FGameplayTag> AbilityTag = nullptr;
+    //     for (const auto& AssetTag : DefaultGameplayAbility->GetAssetTags()) {
+    //         if (AssetTag.MatchesTag(FDefaultGameplayTags::Get().Ability_Aura)) {
+    //             AbilityTag = MakeUnique<FGameplayTag>(AssetTag);
+    //             break;
+    //         }
+    //     }
+    //
+    //     if (!AbilityTag) { continue; }
+    //
+    //
+    //     AbilityRow.Name = DefaultGameplayAbility->AbilityName;
+    //     AbilityRow.Tag = *AbilityTag;
+    //     AbilityRow.CooldownTag = DefaultGameplayAbility->GetCooldownTags()->First();
+    //     AbilityRow.Level = DefaultGameplayAbility->GetAbilityLevel();
+    //
+    //     OnAbilityChanged.Broadcast(AbilityRow);
+    // }
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies() {
@@ -56,14 +57,20 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
         .AddLambda([this] (const FOnAttributeChangeData& Data) { OnManaChanged.Broadcast(Data.NewValue); });
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxManaAttribute())
         .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxManaChanged.Broadcast(Data.NewValue); });
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetXpAttribute())
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnXpChanged.Broadcast(Data.NewValue); });
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetMaxXpAttribute())
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxXpChanged.Broadcast(Data.NewValue); });
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetAttributePointAttribute())
+        .AddLambda([this] (const FOnAttributeChangeData& Data) { OnAttributePointChanged.Broadcast(Data.NewValue); });
 
+    // Message Delegate
     UDefaultAbilitySystemComponent* DefaultASC = CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent);
     DefaultASC->EffectAssetTags.AddLambda(
         [this](const FGameplayTagContainer& AssetTags) 
         {
             for (const auto& Tag : AssetTags) {
-                GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Black, FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString()));
-
+                // GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Black, FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString()));
                 auto MessageTag = FGameplayTag::RequestGameplayTag("Message");
                 if (Tag.MatchesTag(MessageTag)) {
                     auto Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
@@ -75,7 +82,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
     );
 
     // Ability Level Change Delegate
-    DefaultASC->LevelChangeDelegate.AddDynamic(this, &ThisClass::OnAbilityChangedCallback);
+    // DefaultASC->LevelChangeDelegate.AddDynamic(this, &ThisClass::OnAbilityChangedCallback);
 
     // Character Level Change Delegate
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefaultAttributeSet->GetLevelAttribute())
@@ -96,13 +103,13 @@ void UOverlayWidgetController::BindCallbacksToDependencies() {
         .AddLambda([this] (const FOnAttributeChangeData& Data) { OnMaxLightningStackingChanged.Broadcast(Data.NewValue); });
 }
 
-void UOverlayWidgetController::OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag) {
-    FAbilityRow AbilityRow = {};
-    AbilityRow.Name = Name;
-    AbilityRow.Tag = Tag;
-    AbilityRow.Level = Level;
-    AbilityRow.CooldownTag = CooldownTag;
-
-    OnAbilityChanged.Broadcast(AbilityRow);
-}
+// void UOverlayWidgetController::OnAbilityChangedCallback(FText Name, FGameplayTag Tag, int32 Level, FGameplayTag CooldownTag) {
+//     FAbilityRow AbilityRow = {};
+//     AbilityRow.Name = Name;
+//     AbilityRow.Tag = Tag;
+//     AbilityRow.Level = Level;
+//     AbilityRow.CooldownTag = CooldownTag;
+//
+//     OnAbilityChanged.Broadcast(AbilityRow);
+// }
 

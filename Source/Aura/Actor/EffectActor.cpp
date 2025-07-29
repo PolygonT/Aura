@@ -67,8 +67,16 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
     }
     // TODO 1: USE EffectSpecOpt.GetPtrOrNull() will cause a crash, don't known why
     auto TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+
+    if (!TargetASC) {
+        return;
+    }
+
+    auto SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner());
+    SourceASC = SourceASC ? SourceASC : TargetASC;
+
     auto EffectSpec = GameplayAbilityUtils::ConstructEffectSpec(
-        this, TargetASC, TargetASC, GamePlayEffectClass, EffectLevel);
+        this, SourceASC, TargetASC, GamePlayEffectClass, EffectLevel);
 
     if (!EffectSpec) return;
 

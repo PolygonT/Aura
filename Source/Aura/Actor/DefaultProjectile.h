@@ -40,6 +40,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
     TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
 
+    UPROPERTY()
+    TObjectPtr<USceneComponent> HomingTarget;
+
     // ============Impact Interface Start===========
     virtual UNiagaraSystem *GetImpactEffectd_Implementation() const override;
     virtual USoundBase *GetImpactSound_Implementation() const override;

@@ -33,6 +33,7 @@
 - [ ] 开始游戏界面和载入界面
 - [ ] 升级后最大血量没有改变
 - [ ] stacking值为0后，infinite effect还在一直执行
+- [ ] 如果敌人被点燃后烧死，经验会给多出一倍
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate

@@ -5,6 +5,7 @@
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
 #include "DefaultAbilityTypes.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/Engine.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
@@ -67,6 +68,33 @@ UDefaultAbilitySystemLibrary::GetAttributeMenuWidgetController(
         FWidgetControllerParams(PC, DefaultPlayerState, AbilitySystemComponent, AttributeSet);
     return DefaultHUD->GetAttributeMenuWidgetController(Params);
 
+}
+
+UAbilityWidgetController *
+UDefaultAbilitySystemLibrary::GetAbilityWidgetController(
+    const UObject *WorldContextObject) {
+    auto PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+
+    if (!PC) {
+        return nullptr;
+    }
+
+    auto DefaultHUD = Cast<ADefaultHUD>(PC->GetHUD());
+
+    if (!DefaultHUD) {
+        return nullptr;
+    }
+
+    auto DefaultPlayerState = PC->GetPlayerState<ADefaultPlayerState>();
+
+    auto AbilitySystemComponent = DefaultPlayerState->GetAbilitySystemComponent();
+
+    auto AttributeSet = DefaultPlayerState->GetAttributeSet();
+
+    const auto Params = 
+        FWidgetControllerParams(PC, DefaultPlayerState, AbilitySystemComponent, AttributeSet);
+
+    return DefaultHUD->GetAbilityWidgetController(Params);
 }
 
 // void UDefaultAbilitySystemLibrary::InitializeDefaultAttributes(
@@ -190,4 +218,35 @@ FTaggedMontage UDefaultAbilitySystemLibrary::GetRandomElementOfTagArr(
     int32 randomIndex = FMath::RandRange(0, arrSize - 1);
     return arr[randomIndex];
 
+}
+
+// void UDefaultAbilitySystemLibrary::DrawDebugCircleArcWrapper(const UWorld *InWorld, const FVector &Center, float Radius, const FVector &Direction, float AngleWidth, int32 Segments, const FColor &Color) {
+void UDefaultAbilitySystemLibrary::DrawDebugCircleArcWrapper(
+    const UObject *WorldContextObject, const FVector &Center, float Radius,
+    const FVector &Direction, float AngleWidth, int32 Segments,
+    const FColor &Color, bool PersistentLines, float LifeTime,
+    uint8 DepthPriority, float Thickness) {
+
+    DrawDebugCircleArc(WorldContextObject->GetWorld(), Center, Radius, Direction, AngleWidth, Segments, Color, PersistentLines, LifeTime, DepthPriority, Thickness);
+}
+
+TArray<FVector> UDefaultAbilitySystemLibrary::GetSpawnVectorsByNums(
+    FVector ForwardVector, float MaxiumnAngle, float BestAngle, int32 Nums) {
+
+    TArray<FVector> Arr;
+
+    if ((Nums - 1) * BestAngle <= MaxiumnAngle) {
+        // Best Angle Works
+        float LeftMostAngle = -((Nums - 1) * BestAngle) / 2;
+        FRotator LeftRotator = FRotator {0.f, LeftMostAngle, 0.f};
+        FVector LeftMostVector = LeftRotator.RotateVector(ForwardVector);
+
+        for (int32 i = 0; i < Nums; i++) {
+            FRotator NextRotator = FRotator {0.f, i * BestAngle, 0.f};
+            Arr.Add(NextRotator.RotateVector(LeftMostVector));
+        }
+    } else {
+        // TODO not Best Angle
+    }
+    return Arr;
 }

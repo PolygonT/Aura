@@ -9,6 +9,8 @@ class APlayerState;
 class UAbilitySystemComponent;
 class UAttributeSet;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFloatValueChangedSignature, float, NewValue);
+
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams {

@@ -19,13 +19,13 @@ struct FTaggedMontage {
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UAnimMontage* Montage;
+    UAnimMontage* Montage {nullptr};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     FGameplayTag MontageTag;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    USoundBase* ImpactSound;
+    USoundBase* ImpactSound {nullptr};
 };
 
 UENUM(BlueprintType)

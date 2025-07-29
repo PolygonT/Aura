@@ -9,6 +9,7 @@
 
 class UOverlayWidgetController;
 class UAttributeMenuWidgetController;
+class UAbilityWidgetController;
 struct FGameplayEffectContextHandle;
 struct FDefaultGameplayEffectContext;
 struct FTaggedMontage;
@@ -23,13 +24,17 @@ class AURA_API UDefaultAbilitySystemLibrary : public UBlueprintFunctionLibrary
 
 public:
 
-    UFUNCTION(BlueprintPure, Category = "AbilitySystemLibarary")
+    UFUNCTION(BlueprintPure, Category = "AbilitySystemLibrary")
     static UOverlayWidgetController*
     GetOverlayWidgetController(const UObject *WorldContextObject);
 
-    UFUNCTION(BlueprintPure, Category = "AbilitySystemLibarary")
+    UFUNCTION(BlueprintPure, Category = "AbilitySystemLibrary")
     static UAttributeMenuWidgetController *
     GetAttributeMenuWidgetController(const UObject *WorldContextObject);
+
+    UFUNCTION(BlueprintPure, Category = "AbilitySystemLibrary")
+    static UAbilityWidgetController *
+    GetAbilityWidgetController(const UObject *WorldContextObject);
 
     // UFUNCTION()
     // static void InitializeDefaultAttributes(const UObject *WorldContextObject,
@@ -66,6 +71,18 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "AbilitySystemLibarary|CollectionUtils")
     static FTaggedMontage GetRandomElementOfTagArr(TArray<FTaggedMontage> arr);
+
+    UFUNCTION(BlueprintCallable, Category = "BlueprintDebugLibaray")
+    static void DrawDebugCircleArcWrapper(
+        const UObject *WorldContextObject, const FVector &Center, float Radius,
+        const FVector &Direction, float AngleWidth, int32 Segments,
+        const FColor &Color, bool PersistentLines = false,
+        float LifeTime = -1.f, uint8 DepthPriority = 0, float Thickness = 0.f);
+
+    UFUNCTION(BlueprintCallable, Category = "AbilitySystemLibarary|VectorUtils")
+    static TArray<FVector> GetSpawnVectorsByNums(FVector ForwardVector,
+                                                 float MaxiumnAngle,
+                                                 float BestAngle, int32 Nums);
 
   private:
     static const FDefaultGameplayEffectContext*
