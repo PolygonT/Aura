@@ -309,7 +309,8 @@ void UDefaultAttributeSet::OnRep_AttributePoint(const FGameplayAttributeData Old
 void UDefaultAttributeSet::DealIncomingDamage(FEffectProperties& Props) {
     const float LocalIncomingDamge = GetIncomingDamage();
     SetIncomingDamage(0.f);
-    if (LocalIncomingDamge > 0.f) {
+    if (LocalIncomingDamge > 0.f && GetHealth() > 0.f) {
+
         const float NewHealth = GetHealth() - LocalIncomingDamge;
         SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 

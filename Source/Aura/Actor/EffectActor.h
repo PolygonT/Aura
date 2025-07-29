@@ -7,6 +7,7 @@
 #include "ActiveGameplayEffectHandle.h"
 #include "GameplayTagContainer.h"
 #include "Interaction/EnvDamageInterface.h"
+#include "Interaction/LootInterface.h"
 #include "ScalableFloat.h"
 #include "EffectActor.generated.h"
 
@@ -21,7 +22,7 @@ struct FGameplayEffectSpecHandle;
 class UCapsuleComponent;
 
 UCLASS()
-class AURA_API AEffectActor : public AActor, public IEnvDamageInterface
+class AURA_API AEffectActor : public AActor, public IEnvDamageInterface, public ILootInterface
 {
 	GENERATED_BODY()
 	
@@ -34,6 +35,11 @@ public:
     UFUNCTION(BlueprintCallable)
     void RemoveActiveEffect(AActor* TargetActor);
 
+    UFUNCTION()
+    void DelayFloatingEvent();
+
+    FORCEINLINE void SetFloating(bool InFloating) { bFloating = InFloating; }
+
     // ==========IEnvDamageInterface==============
     virtual TMap<FGameplayTag, FScalableFloat>
     GetDamageTypesMap() const override;
@@ -42,6 +48,10 @@ public:
     GetStackingTypesMap() const override;
 
     // ==========IEnvDamageInterface End==========
+
+    // ==========ILootInterface Start==========
+    virtual UMeshComponent* GetMesh_Implementation() override;
+    // ==========ILootInterface End============
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,6 +63,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
     TSubclassOf<UGameplayEffect> GameplayEffectClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> DefaultMesh;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
     EEffectRemovalPolicy EffectRemovalPolicy { EEffectRemovalPolicy::RemoveOnEndOverlap };
@@ -73,7 +86,7 @@ protected:
     TMap<FGameplayTag, FScalableFloat> StackingTypesMap;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
-    bool bFloating { false };
+    bool bFloating { true };
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Behavior")
     float FloatingSpeed { 2.5f };

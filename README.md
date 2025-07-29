@@ -4,8 +4,8 @@
 - [ ] TODO 2: template not working
 - [ ] BindAction后面的可变参数好像不能是引用，为什么？
 - [ ] TODO 3: remove this for loop
-- [ ] MULTI PLAYER CODE
-- [ ] BUG 按住发射不松的话会一直发射技能，而且在鼠标的位置
+- [x] MULTI PLAYER CODE
+- [x] BUG 按住发射不松的话会一直发射技能，而且在鼠标的位置
 - [x] Blueprint implement event can't not be virtual ? BlueprintImplementableEvent不能在c++中override，所以不需要virtual关键字。如果需要在c++和蓝图中都override，可以使用BlueprintNativeEvent,
 而且不需要virtual关键字
 - [ ] shift发射火球的方向不是鼠标的方向，会偏移
@@ -17,23 +17,24 @@
 - [ ] TODO 5 这里的Replicate是否合适，是为了修复客户端敌人死后血条往下掉的BUG加上的
 - [ ] TODO 6 不返回引用会造成额外复制，但返回引用会闪退，非法内存访问
 - [ ] 点脚下发射火球时，motion warping有点问题，应该以人物为原点向点的方向旋转
-- [ ] BUG，网络有延迟的情况下，客户端火球有时候发不出来
+- [x] BUG，网络有延迟的情况下，客户端火球有时候发不出来
 - [ ] WaitCooldown.cpp需要参考GasDocument项目的预测写法
-- [ ] 设计火、雷等等叠加属性，属性到100就触发着火、雷电等效果。收到火焰伤害或者在火堆中都会叠加这个值.
+- [x] 设计火、雷等等叠加属性，属性到100就触发着火、雷电等效果。收到火焰伤害或者在火堆中都会叠加这个值.
 如果角色已经着火，清空叠加属性值，而且在着火期间不会叠加值
-- [ ] TODO StackingAttribute随时间减少
+- [x] TODO StackingAttribute随时间减少
 - [ ] TODO BUG FIX(Effect Actor的Effect预测导致) LogAbilitySystem: Warning: RemoveActiveGameplayEffect called without Authority when attempting to remove None. Fix-up code, or temporarily patch using AbilitySystem.Fix.AllowPredictiveGEFlags
 - [ ] 手柄和键盘的兼容，目前LightningShock还没有MotionWarping; 翻译; 被动技能（随时间减Stacking Value） 
 - [ ] 能力升级 Lightning Shock每升一级可以自动连接最近的一个敌人
 - [ ] Health/Mana Crystal的持续恢复效果，目前是用插值算法来跟随角色，是否还可以用行为树使它更真实一点。（目前如果角色一直移动，效果是追不上角色的，想要角色突然移动效果延迟一段时间开始，并且角色一直移动效果可以在加速后追上角色）
 - [x] 完成拾取物品的动画
 - [x] 没有蓝量LightningShock需要立即结束、攻击命中动画能不能复用
-- [ ] LightningShock对敌人的伤害没有显示
-- [ ] 实现经验条和升级, 升级后文字提示
+- [x] LightningShock对敌人的伤害没有显示
+- [x] 实现经验条和升级, 升级后文字提示
 - [ ] 开始游戏界面和载入界面
-- [ ] 升级后最大血量没有改变
+- [x] 升级后最大血量没有改变
 - [ ] stacking值为0后，infinite effect还在一直执行
-- [ ] 如果敌人被点燃后烧死，经验会给多出一倍
+- [x] 如果敌人被点燃后烧死，经验会给多出一倍
+- [ ] 技能加点影响、Loot不支持每种敌人配置
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate

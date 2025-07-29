@@ -5,11 +5,15 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
+#include "Aura.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Containers/Map.h"
 #include "DefaultGameplayTags.h"
+#include "Engine/TimerHandle.h"
 #include "GameplayCueManager.h"
 #include "GameplayPrediction.h"
+#include "TimerManager.h"
 #include "Utils/GameplayAbilityUtils.h"
 
 AEffectActor::AEffectActor()
@@ -17,12 +21,22 @@ AEffectActor::AEffectActor()
 	PrimaryActorTick.bCanEverTick = true;
     bReplicates = true;
 
-    SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
+    // SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
 
-    
+    DefaultMesh = CreateDefaultSubobject<UStaticMeshComponent>("DefaultMesh");
+    SetRootComponent(DefaultMesh);
+    // DefaultMesh->SetupAttachment(GetRootComponent());
+    DefaultMesh->SetCollisionObjectType(LootChannel);
+    DefaultMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+    DefaultMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    DefaultMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+    DefaultMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+
     CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>("CollisionComponent");
     CollisionComponent->SetupAttachment(GetRootComponent());
-    CollisionComponent->SetCapsuleHalfHeight(22.f);
+    CollisionComponent->SetCapsuleHalfHeight(125.f);
+    CollisionComponent->SetCapsuleRadius(125.f);
+
 
     if (HasAuthority()) {
         CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
@@ -49,6 +63,7 @@ void AEffectActor::BeginPlay()
 void AEffectActor::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
 
+    UE_LOG(LogTemp, Warning, TEXT("bFloating: [%d]"), bFloating);
     if (bFloating) {
         RunningTime += DeltaSeconds;
         float alpha = 0.5f * FMath::Sin(RunningTime * FloatingSpeed) + 0.5f; // alpha 0 ~ 1
@@ -56,8 +71,11 @@ void AEffectActor::Tick(float DeltaSeconds) {
         const FVector DesitinationLocation = FMath::Lerp(SourceLocation, TargetLocation, alpha);
 
         const FRotator Rotation = { 0.f, DeltaSeconds * RotationSpeed, 0.f };
+        // DefaultMesh->AddRelativeRotation(Rotation);
+        // DefaultMesh->SetRelativeLocation(DesitinationLocation);
         AddActorWorldRotation(Rotation);
         SetActorLocation(DesitinationLocation);
+        UE_LOG(LogTemp, Warning, TEXT("DesitinationLocation: [%s]"), *DesitinationLocation.ToString());
     }
 }
 
@@ -182,5 +200,18 @@ TMap<FGameplayTag, FScalableFloat> AEffectActor::GetDamageTypesMap() const {
 
 TMap<FGameplayTag, FScalableFloat> AEffectActor::GetStackingTypesMap() const {
     return StackingTypesMap;
+}
+
+
+UMeshComponent *AEffectActor::GetMesh_Implementation() {
+    return DefaultMesh;
+}
+
+void AEffectActor::DelayFloatingEvent() {
+    DELAY_TIME(1.f, {
+        DisableComponentsSimulatePhysics();
+        SourceLocation = GetActorLocation();
+        bFloating = true;
+    })
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actor/EffectActor.h"
 #include "Engine/DataAsset.h"
 #include "CharacterClassInfo.generated.h"
 
@@ -17,12 +18,33 @@ enum class ECharacterClass : uint8 {
 };
 
 USTRUCT(BlueprintType)
+struct FLootInfo {
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<AEffectActor> LootClass;
+
+    UPROPERTY(EditDefaultsOnly)
+    float Probability;
+
+    UPROPERTY(EditDefaultsOnly)
+    int32 SpawnNums;
+
+    UPROPERTY(EditDefaultsOnly)
+    int32 SpawnNumsRandomDevition;
+};
+
+USTRUCT(BlueprintType)
 struct FCharacterClassDefaultInfo {
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, Category = "Class Default")
     TSubclassOf<UGameplayEffect> PrimaryAttributesEffect;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Class Default")
+    TArray<FLootInfo> LootInfos;
 };
+
 
 /**
  * 
