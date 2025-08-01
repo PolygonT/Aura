@@ -70,7 +70,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
     EEffectRemovalPolicy EffectRemovalPolicy { EEffectRemovalPolicy::RemoveOnEndOverlap };
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effect")
     float EffectLevel { 1.f };
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect")

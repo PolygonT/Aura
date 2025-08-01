@@ -60,6 +60,7 @@ public:
     virtual TSubclassOf<UGameplayEffect> GetLevelUpEffect() const override;
     virtual float GetXpDrop() const override;
     virtual int32 GetCurrentMaxXp() const override;
+    UFUNCTION(BlueprintCallable)
     virtual int32 GetPlayerLevel() const override;
     virtual bool IsPlayer() const override;
 
@@ -79,6 +80,9 @@ public:
 
     UFUNCTION(BlueprintCallable)
     const UGameplayAbility* GetActivatableAbilityByTag(UPARAM(ref) FGameplayTag& Tag, FGameplayAbilitySpec& OutAbilitySpec);
+
+    void SetPlayerLevel(int32 InLevel);
+
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     TArray<FTaggedMontage> AttackMontages;
@@ -144,6 +148,8 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     float BaseWalkSpped { 250.f };
+
+    int32 _TempPlayerLevel {1};
 
     virtual void InitAbilityActorInfo();
 

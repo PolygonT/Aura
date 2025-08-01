@@ -3,6 +3,7 @@
 
 #include "DerivedAura.h"
 #include "AbilitySystem/DefaultAbilitySystemComponent.h"
+#include "AbilitySystem/DefaultAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/DefaultPlayerController.h"
@@ -45,6 +46,9 @@ void ADerivedAura::InitAbilityActorInfo() {
     DefaultPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(DefaultPlayerState, this);
     AbilitySystemComponent = DefaultPlayerState->GetAbilitySystemComponent();
     AttributeSet = DefaultPlayerState->GetAttributeSet();
+
+    auto DefaultAttributeSet = CastChecked<UDefaultAttributeSet>(AttributeSet);
+    DefaultAttributeSet->SetLevel(_TempPlayerLevel);
 
     AddCharactorAbilities();
     CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();

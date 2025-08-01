@@ -13,7 +13,6 @@
 #include "Engine/TimerHandle.h"
 #include "GameplayCueManager.h"
 #include "GameplayPrediction.h"
-#include "TimerManager.h"
 #include "Utils/GameplayAbilityUtils.h"
 
 AEffectActor::AEffectActor()
@@ -208,7 +207,7 @@ UMeshComponent *AEffectActor::GetMesh_Implementation() {
 }
 
 void AEffectActor::DelayFloatingEvent() {
-    DELAY_TIME(1.f, {
+    DELAY(1.f, {
         DisableComponentsSimulatePhysics();
         SourceLocation = GetActorLocation();
         bFloating = true;

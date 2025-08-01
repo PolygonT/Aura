@@ -281,3 +281,7 @@ float ABaseCharacter::GetXpDrop() const {
     return XpDropScalable.GetValueAtLevel(GetPlayerLevel());
 }
 
+void ABaseCharacter::SetPlayerLevel(int32 InLevel) {
+    _TempPlayerLevel = InLevel;
+}
+

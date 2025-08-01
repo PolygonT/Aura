@@ -33,7 +33,6 @@ public:
     virtual AActor *GetCombatTarget_Implementation() const override;
 
     // ==== Combat Interface ====
-    virtual int32 GetPlayerLevel() const override;
     virtual bool IsPlayer() const override;
 
     virtual void Die() override;
@@ -60,6 +59,9 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
     void CriticalHitEvent();
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnPlayerLevelSet();
+
     virtual void PossessedBy(AController *NewController) override;
 
     void HitReact(const FGameplayTag GameplayTag, int32 NewCount);
@@ -69,8 +71,8 @@ public:
 
     virtual void InitAbilityActorInfo() override;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
-    int32 PlayerLevel = 1;
+    // UPROPERTY(DeprecatedProperty, EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+    // int32 PlayerLevel = 1;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     TObjectPtr<UWidgetComponent> HealthBar;

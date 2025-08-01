@@ -34,7 +34,8 @@
 - [x] 升级后最大血量没有改变
 - [ ] stacking值为0后，infinite effect还在一直执行
 - [x] 如果敌人被点燃后烧死，经验会给多出一倍
-- [ ] 技能加点影响、Loot不支持每种敌人配置
+- [ ] 技能加点影响、Loot不支持每种敌人配置，Loot掉落根据敌人等级
+- [ ] Widget显示敌人等级
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate
@@ -52,6 +53,7 @@
 - [ ] EffectActor的EndOverlap已经绑定到Server了，但是执行多人游戏依然会在客户端执行，是因为Prediction吗？
 - [ ] 如果一个类中包含一个UniquePtr，拷贝这个类的时候，ptr会完全拷贝吗？
 - [ ] c++子类可以在构造器的初始化列表中显示调用父类构造器，如果不指定会隐式调用父类构造器吗？
+- [x] 如果一个方法返回引用，调用这个方法时也需要指定变量为引用，才能真正得到引用
 
 ## Editor Skill
 - GA，Instance PerActor，每个Actor只会有一个GA创建

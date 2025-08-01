@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
 #include "DefaultGameplayTags.h"
+#include "Engine/World.h"
 #include "GameplayEffect.h"
 #include "Misc/ObjectThumbnail.h"
 
@@ -36,4 +37,16 @@ void UDefaultGameplayAbility::ApplyCooldown(
     }
 }
 
+AActor* UDefaultGameplayAbility::CustomSpawnActor(TSubclassOf<AActor> ActorClass,
+                                               const FTransform& SpawnTransform) {
+    APawn* SpawnOwner = Cast<APawn>(GetAvatarActorFromActorInfo());
 
+    AActor* TargetActor = GetWorld()->SpawnActorDeferred<AActor>(
+        ActorClass, SpawnTransform, GetAvatarActorFromActorInfo(), SpawnOwner);
+    CustomPreSpawnActor(TargetActor);
+
+    TargetActor->FinishSpawning(SpawnTransform);
+
+    CustomPostSpawnActor(TargetActor);
+    return TargetActor;
+}

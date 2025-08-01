@@ -31,6 +31,7 @@ struct FUIWidgetRow : public FTableRowBase {
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSpawnEnemiesSignatureF, int32, EnemyLevel, int32, EnemyLevelDeviation);
 
 
 /**

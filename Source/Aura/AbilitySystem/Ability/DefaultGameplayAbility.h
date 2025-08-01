@@ -28,7 +28,15 @@ public:
     UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Cooldowns")
     FGameplayTagContainer CooldownTags;
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void CustomPreSpawnActor(AActor* TargetActor);
 
+    UFUNCTION(BlueprintImplementableEvent)
+    void CustomPostSpawnActor(AActor* TargetActor);
+
+    UFUNCTION(BlueprintCallable)
+    AActor* CustomSpawnActor(TSubclassOf<AActor> ActorClass,
+                          const FTransform& SpawnTransform);
 
     virtual const FGameplayTagContainer *GetCooldownTags() const override;
 

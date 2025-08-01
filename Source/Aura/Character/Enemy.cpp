@@ -46,11 +46,9 @@ void AEnemy::BeginPlay() {
 
     // Set Widget Controller
     
-    if (auto DefaultUserWidget = Cast<UDefaultUserWidget>(HealthBar->GetUserWidgetObject())) {
-        DefaultUserWidget->SetWidgetController(this);
-    }
-
     auto DefaultAttributeSet = Cast<UDefaultAttributeSet>(AttributeSet);
+    DefaultAttributeSet->SetLevel(_TempPlayerLevel);
+    OnPlayerLevelSet();
 
     // Init Broadcast
     OnHealthChanged.Broadcast(DefaultAttributeSet->GetHealth());
@@ -104,10 +102,6 @@ void AEnemy::InitAbilityActorInfo() {
     InitPrimaryAttributes();
     InitSecondaryAttributes();
     InitVitalAttributes();
-}
-
-int32 AEnemy::GetPlayerLevel() const {
-    return PlayerLevel;
 }
 
 void AEnemy::Die() {
