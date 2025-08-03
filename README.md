@@ -1,5 +1,5 @@
 # 演示（点击图片查看视频）
-[![Watch the video](http://129.211.218.112/videos/level.png)](http://129.211.218.112/videos/level.mp4)
+[![Watch the video](assets/level.png)](http://129.211.218.112/videos/level.mp4)
 
 # 基础设计
 ## 数值属性
@@ -38,7 +38,7 @@
 
 #### 火焰和雷电叠加值演示（点击图片查看视频）
 
-[![Watch the video](http://129.211.218.112/videos/stacking.png)](http://129.211.218.112/videos/stacking.mp4)
+[![Watch the video](assets/stacking.png)](http://129.211.218.112/videos/stacking.mp4)
 
 ### 元属性
 通过元属性设计解耦复杂计算，这里演示了三个元属性的复杂计算。
@@ -150,7 +150,7 @@
 #### 技能演示（点击图片查看视频）
 
 技能生成一个或多个Projectile（飞行物组件），通过HomingTarget实现追踪敌人的效果。如果生成多个飞行物，会计算每个飞行物的射出方向
-[![Watch the video](http://129.211.218.112/videos/firebolt.png)](http://129.211.218.112/videos/firebolt.mp4)
+[![Watch the video](assets/firebolt.png)](http://129.211.218.112/videos/firebolt.mp4)
 
 #### 技能属性
 火球数量: 1-2级1个，3-5级2个，6-9级四个
@@ -164,7 +164,7 @@
 
 技能射出一个或多个雷电束，敌人在范围内会造成雷电伤害和雷电叠加伤害，叠加伤害叠满后造成眩晕效果。技能可以通过按住持续释放，松开按键
 进入节能冷却。魔力消耗分为两段，初始消耗和持续消耗，释放技能必定扣减初始消耗，持续释放技能会根据时间扣减魔力值
-[![Watch the video](http://129.211.218.112/videos/ls.png)](http://129.211.218.112/videos/ls.mp4)
+[![Watch the video](assets/ls.png)](http://129.211.218.112/videos/ls.mp4)
 #### 技能属性
 雷电束数量： 1-2级1束，3级以上3束
 ![](assets/2025-08-03-19-47-53.png)
@@ -182,6 +182,6 @@
 ## EQS环境感知（点击图片查看视频）
 
 远程类型敌人会根据EQS感知周围的环境并绕过障碍物攻击主角
-[![Watch the video](http://129.211.218.112/videos/ranger.png)](http://129.211.218.112/videos/ranger.mp4)
+[![Watch the video](assets/ranger.png)](http://129.211.218.112/videos/ranger.mp4)
 
 ![](assets/2025-08-03-19-56-25.png)
