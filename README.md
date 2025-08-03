@@ -1,7 +1,8 @@
 # 演示
 <video width="320" height="240" controls>
-  <source src="https://wenhaoxiong.oss-cn-beijing.aliyuncs.com/%E5%85%B3%E5%8D%A1%E6%BC%94%E7%A4%BA.mp4?Expires=1754229745&OSSAccessKeyId=TMP.3Ks8uQuoQytaMhFk5DdRgPtdzN1ShsnJkxnrLqk9M2PWzQEQi6oMu5wfJXNmRJDBH1NeheGCVY33hSWsG9qM46Sj4pAmvH&Signature=ugkmh%2BAsLt3kzV4dT3xaJiIR%2FiI%3D" type="video/mp4">
+  <source src="http://ihaveaplanr.com/videos/ls.mp4" type="video/mp4">
 </video>
+[![Watch the video](https://i.sstatic.net/Vp2cE.png)](https://youtu.be/vt5fpE0bzSY)
 
 # 基础设计
 ## 数值属性
