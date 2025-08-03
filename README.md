@@ -1,8 +1,5 @@
 # 演示
-<video width="320" height="240" controls>
-  <source src="http://ihaveaplanr.com/videos/ls.mp4" type="video/mp4">
-</video>
-[![Watch the video](https://i.sstatic.net/Vp2cE.png)](https://youtu.be/vt5fpE0bzSY)
+[![点击查看](http://ihaveaplanr.com/videos/ls.png)](http://ihaveaplanr.com/videos/ls.mp4)
 
 # 基础设计
 ## 数值属性
