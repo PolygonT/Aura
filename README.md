@@ -34,8 +34,10 @@
 - [x] 升级后最大血量没有改变
 - [ ] stacking值为0后，infinite effect还在一直执行
 - [x] 如果敌人被点燃后烧死，经验会给多出一倍
-- [ ] 技能加点影响、Loot不支持每种敌人配置，Loot掉落根据敌人等级
-- [ ] Widget显示敌人等级
+- [x] 技能加点影响、，Loot掉落根据敌人等级
+- [ ] Loot暂时不支持每种敌人配置
+- [x] Widget显示敌人等级
+- [ ] Localize
 
 ## PROBLEM
 - [x] diff between static delegate and dynamic delegate

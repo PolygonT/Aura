@@ -6,7 +6,7 @@
 #include "Templates/UnrealTemplate.h"
 
 AEnemyWaveGameMode::AEnemyWaveGameMode() {
-    NextWaveDelegate.AddDynamic(this, &ThisClass::NextWave);
+    // NextWaveDelegate.AddDynamic(this, &ThisClass::NextWave);
 }
 
 FOnSpawnEnemiesBroadcast& AEnemyWaveGameMode::GetSpawnEnemiesDelegate() {
@@ -23,28 +23,34 @@ void AEnemyWaveGameMode::NextWave() {
     if (Levels.IsValidIndex(CurrentLevel)) {
         FWaveLevel& WaveLevel = Levels[CurrentLevel];
         int32 SpawnEnemyLevel = WaveLevel.Level;
-        auto Waves = WaveLevel.Waves;
+        auto& Waves = WaveLevel.Waves;
 
         if (Waves.IsValidIndex(CurrentWave)) {
             FWave& Wave = Waves[CurrentWave];
             FTimerHandle TimerHandle;
 
-            GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Wave, this] () {
+            WaveStart(Wave.WaveMessage, Wave.WaitTime, ++WaveCount);
+
+            // TODO 解决这里产生的复制
+            GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Wave, SpawnEnemyLevel, this] () {
                 TArray<FEnemyInfo> EnemySpawnInfos = Wave.EnemySpawnInfos;
                 // call delegate
-                SpawnEnemiesDelegate.Broadcast(CurrentLevel + 1, EnemySpawnInfos);
+                SpawnEnemiesDelegate.Broadcast(SpawnEnemyLevel, EnemySpawnInfos);
             }, Wave.WaitTime, false);
             
             // TODO 需要手动清理Timer吗
 
         }
 
-        if (++CurrentLevel >= Levels.Num()) {
-            // Compeleted All Levels
-        }
+        
 
         if (++CurrentWave >= Waves.Num()) {
             CurrentWave = 0;
+            ++CurrentLevel;
+        }
+
+        if (CurrentLevel >= Levels.Num()) {
+            // Compeleted All Levels
         }
 
     }

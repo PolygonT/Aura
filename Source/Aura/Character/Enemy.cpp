@@ -11,6 +11,8 @@
 #include "Components/WidgetComponent.h"
 #include "DefaultGameplayTags.h"
 #include "DrawDebugHelpers.h"
+#include "Game/DefaultGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/Widget/DefaultUserWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -35,6 +37,11 @@ AEnemy::AEnemy() {
     bUseControllerRotationYaw = false;
 
     GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+    
+    if (auto DefaultGameMode = Cast<ADefaultGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))) {
+        DefaultGameMode->OnEnemySpawn();
+    }
 }
 
 void AEnemy::BeginPlay() {
@@ -47,8 +54,6 @@ void AEnemy::BeginPlay() {
     // Set Widget Controller
     
     auto DefaultAttributeSet = Cast<UDefaultAttributeSet>(AttributeSet);
-    DefaultAttributeSet->SetLevel(_TempPlayerLevel);
-    OnPlayerLevelSet();
 
     // Init Broadcast
     OnHealthChanged.Broadcast(DefaultAttributeSet->GetHealth());
@@ -98,6 +103,8 @@ void AEnemy::UnHighlightActor() {
 void AEnemy::InitAbilityActorInfo() {
     AbilitySystemComponent->InitAbilityActorInfo(this, this);
     CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+    CastChecked<UDefaultAttributeSet>(AttributeSet)->SetLevel(_TempPlayerLevel);
+    OnPlayerLevelSet();
 
     InitPrimaryAttributes();
     InitSecondaryAttributes();
@@ -109,7 +116,7 @@ void AEnemy::Die() {
     DefaultAIController->GetBlackboardComponent()->SetValueAsBool("Dead", true);
 
     // Spawn Loots
-    // TODO 这里的引用标记有必要吗？因为返回方法已经带引用符了
+    // 这里的引用标记有必要吗？因为返回方法已经带引用符了(有必要)
     FCharacterClassDefaultInfo& Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
 
@@ -140,6 +147,7 @@ void AEnemy::Die() {
             float RandY = FMath::Sqrt(1.f - RandX * RandX) * Negative; 
             FVector ImpulseVector {RandX * 50, RandY * 50, 400.f};
             EffectActor->SetFloating(false);
+            EffectActor->SetEffectLevel(GetPlayerLevel());
             MeshComponent->SetSimulatePhysics(true);
             MeshComponent->AddImpulse(ImpulseVector, NAME_None, true);
 
@@ -185,3 +193,11 @@ AActor *AEnemy::GetCombatTarget_Implementation() const {
 }
 
 bool AEnemy::IsPlayer() const { return false; }
+
+void AEnemy::Destroyed() {
+    if (auto DefaultGameMode = Cast<ADefaultGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))) {
+        DefaultGameMode->OnEnemyDestory();
+    }
+
+    Super::Destroyed();
+}

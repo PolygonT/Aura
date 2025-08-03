@@ -13,7 +13,7 @@
 ADefaultSpawner::ADefaultSpawner()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
     SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
 
@@ -50,17 +50,17 @@ void ADefaultSpawner::OnSpawnEnemies(int32 SpawnLevel, TArray<FEnemyInfo>& Enemy
 
     for (const auto& SpawnInfo : EnemySpawnInfos) {
         int32 SpawnNums = SpawnInfo.SpawnNums + FMath::RandRange(0, SpawnInfo.SpawnNumsDeviation);
-        SpawnLevel = SpawnLevel + FMath::RandRange(0, SpawnInfo.EnemyLevelDeviation);
         if (SpawnNums > 0) {
 
             for (int32 i = 0; i < SpawnNums; i++) {
+                int32 SpawnLevelWithDeviation = SpawnLevel + FMath::RandRange(0, SpawnInfo.EnemyLevelDeviation);
                 BiasRotator.Yaw += BiasDegree;
                 FTransform SpawnTransform {SpawnLocation + BiasRotator.RotateVector(GetActorForwardVector()) * 70};
                 SpawnTransform.SetRotation(SpawnForwardVector.ToOrientationQuat());
 
                 AEnemy* Enemy = GetWorld()->SpawnActorDeferred<AEnemy>(SpawnInfo.EnemyClass, SpawnTransform, this);
                 Enemy->SpawnDefaultController();
-                Enemy->SetPlayerLevel(SpawnLevel);
+                Enemy->SetPlayerLevel(SpawnLevelWithDeviation);
 
                 Enemy->FinishSpawning(SpawnTransform);
             }

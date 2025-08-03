@@ -64,6 +64,8 @@ public:
 
     virtual void PossessedBy(AController *NewController) override;
 
+    virtual void Destroyed() override;
+
     void HitReact(const FGameplayTag GameplayTag, int32 NewCount);
 
   protected:

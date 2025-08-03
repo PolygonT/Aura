@@ -8,6 +8,8 @@
 
 class UCharacterClassInfo;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyCountChangeSignature, int32, EnemyCount);
+
 /**
  * 
  */
@@ -19,4 +21,14 @@ class AURA_API ADefaultGameModeBase : public AGameModeBase
 public:
     UPROPERTY(EditDefaultsOnly, Category = "Character Class Defaults")
     TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
+
+    void OnEnemySpawn();
+
+    void OnEnemyDestory();
+
+  protected:
+    int32 LevelEnemyCount {0};
+
+    UPROPERTY(BlueprintAssignable)
+    FOnEnemyCountChangeSignature OnEnemyCountChange;
 };

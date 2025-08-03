@@ -3,3 +3,11 @@
 
 #include "DefaultGameModeBase.h"
 
+void ADefaultGameModeBase::OnEnemySpawn() { 
+    OnEnemyCountChange.Broadcast(++LevelEnemyCount);
+}
+
+void ADefaultGameModeBase::OnEnemyDestory() { 
+    OnEnemyCountChange.Broadcast(--LevelEnemyCount);
+}
+

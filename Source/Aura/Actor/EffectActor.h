@@ -40,6 +40,8 @@ public:
 
     FORCEINLINE void SetFloating(bool InFloating) { bFloating = InFloating; }
 
+    FORCEINLINE void SetEffectLevel(float InEffectLevel) { EffectLevel = InEffectLevel; };
+
     // ==========IEnvDamageInterface==============
     virtual TMap<FGameplayTag, FScalableFloat>
     GetDamageTypesMap() const override;

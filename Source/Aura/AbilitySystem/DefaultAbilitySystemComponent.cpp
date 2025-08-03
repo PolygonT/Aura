@@ -3,6 +3,7 @@
 
 #include "DefaultAbilitySystemComponent.h"
 #include "AbilitySystem/Ability/DefaultGameplayAbility.h"
+#include "AbilitySystem/DefaultAttributeSet.h"
 #include "DefaultGameplayTags.h"
 #include "Player/DefaultPlayerState.h"
 
@@ -19,9 +20,9 @@ void UDefaultAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* Abil
 }
 
 void UDefaultAbilitySystemComponent::AddCharacterAbilities(
-    const TArray<TSubclassOf<UGameplayAbility>> &StartupAbilities) {
+    const TArray<TSubclassOf<UGameplayAbility>> &StartupAbilities, int32 CharacterLevel) {
     for (auto& ItemClass : StartupAbilities) {
-        auto AbilitySpec = FGameplayAbilitySpec(ItemClass, 1);
+        auto AbilitySpec = FGameplayAbilitySpec(ItemClass, CharacterLevel);
 
         if (auto DefaultGameplayAbility = Cast<UDefaultGameplayAbility>(AbilitySpec.Ability)) {
             AbilitySpec.GetDynamicSpecSourceTags().AddTag(DefaultGameplayAbility->AbilityTag);
@@ -31,9 +32,10 @@ void UDefaultAbilitySystemComponent::AddCharacterAbilities(
 }
 
 void UDefaultAbilitySystemComponent::AddCharacterAbilitiesNormal(
-    const TArray<TSubclassOf<UGameplayAbility>> &NormalAbilities) {
+    const TArray<TSubclassOf<UGameplayAbility>> &NormalAbilities, int32 CharacterLevel) {
+
     for (auto& ItemClass : NormalAbilities) {
-        auto AbilitySpec = FGameplayAbilitySpec(ItemClass, 1);
+        auto AbilitySpec = FGameplayAbilitySpec(ItemClass, CharacterLevel);
         GiveAbility(AbilitySpec);
     }
 }

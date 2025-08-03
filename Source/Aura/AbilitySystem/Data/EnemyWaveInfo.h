@@ -31,7 +31,10 @@ struct FWave {
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly)
-    float WaitTime;
+    float WaitTime {7.5f};
+
+    UPROPERTY(EditDefaultsOnly)
+    FText WaveMessage;
 
     UPROPERTY(EditDefaultsOnly)
     TArray<FEnemyInfo> EnemySpawnInfos;
@@ -50,7 +53,6 @@ struct FWaveLevel {
     
     TArray<FWave> Waves;
 
-    // TODO Message Prompt
 };
 
 

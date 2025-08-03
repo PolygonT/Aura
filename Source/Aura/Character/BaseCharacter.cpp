@@ -55,7 +55,7 @@ void ABaseCharacter::InitAbilityActorInfo() {
 void ABaseCharacter::InitPrimaryAttributes() {
     check(CharacterClassInfo);
     check(IsValid(GetAbilitySystemComponent()));
-    auto Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+    auto& Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
     auto EffectSpec = *GameplayAbilityUtils::ConstructEffectSpec(this, this, Info.PrimaryAttributesEffect, GetPlayerLevel());
     GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
@@ -96,11 +96,12 @@ void ABaseCharacter::AddCharactorAbilities() {
     }
 
     auto DefaultAbilitySystemComponent = CastChecked<UDefaultAbilitySystemComponent>(AbilitySystemComponent);
-    DefaultAbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
-    DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(NormalAbilities);
+    int32 CharacterLevel = GetPlayerLevel();
+    DefaultAbilitySystemComponent->AddCharacterAbilities(StartupAbilities, CharacterLevel);
+    DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(NormalAbilities, CharacterLevel);
     if (SpecializedAbilities.Contains(CharacterClass)) {
         FSpecializedAbilityInfo SpecializedAbilitiesInfo = SpecializedAbilities[CharacterClass];
-        DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(SpecializedAbilitiesInfo.Abilities);
+        DefaultAbilitySystemComponent->AddCharacterAbilitiesNormal(SpecializedAbilitiesInfo.Abilities, CharacterLevel);
     }
 }
 
