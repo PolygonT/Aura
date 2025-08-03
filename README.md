@@ -1,90 +1,180 @@
-## TODOS
-- [ ] TODO 1: USE EffectSpecOpt.GetPtrOrNull() will cause a crash, don't known why
-- [ ] diff between aggregated by source and aggregated by target
-- [ ] TODO 2: template not working
-- [ ] BindAction后面的可变参数好像不能是引用，为什么？
-- [ ] TODO 3: remove this for loop
-- [x] MULTI PLAYER CODE
-- [x] BUG 按住发射不松的话会一直发射技能，而且在鼠标的位置
-- [x] Blueprint implement event can't not be virtual ? BlueprintImplementableEvent不能在c++中override，所以不需要virtual关键字。如果需要在c++和蓝图中都override，可以使用BlueprintNativeEvent,
-而且不需要virtual关键字
-- [ ] shift发射火球的方向不是鼠标的方向，会偏移
-- [ ] blueprint pure? 没有执行pin的方法，没有副作用（不会改变任何对象的状态），还隐式的包含了BlueprintCallable
-- [x] APlayerController是AController的子类，为什么不能用AController接受APlayerController （代码错误，头文件中没有包含Controller.h，所以编译器不认识AController类）
-- [ ] BUG 火球Destroy时触碰角色触碰到，可能先overlap了，overlap代码执行过程中火球已经销毁了？
-- [ ] TODO 4 How to remove this new key
-- [ ] BUG 客户端发火球，如果主角和敌人隔得太近，火球在服务器生成-销毁过快，客户端没有得到火球的overlap和Destroy执行
-- [ ] TODO 5 这里的Replicate是否合适，是为了修复客户端敌人死后血条往下掉的BUG加上的
-- [ ] TODO 6 不返回引用会造成额外复制，但返回引用会闪退，非法内存访问
-- [ ] 点脚下发射火球时，motion warping有点问题，应该以人物为原点向点的方向旋转
-- [x] BUG，网络有延迟的情况下，客户端火球有时候发不出来
-- [ ] WaitCooldown.cpp需要参考GasDocument项目的预测写法
-- [x] 设计火、雷等等叠加属性，属性到100就触发着火、雷电等效果。收到火焰伤害或者在火堆中都会叠加这个值.
-如果角色已经着火，清空叠加属性值，而且在着火期间不会叠加值
-- [x] TODO StackingAttribute随时间减少
-- [ ] TODO BUG FIX(Effect Actor的Effect预测导致) LogAbilitySystem: Warning: RemoveActiveGameplayEffect called without Authority when attempting to remove None. Fix-up code, or temporarily patch using AbilitySystem.Fix.AllowPredictiveGEFlags
-- [ ] 手柄和键盘的兼容，目前LightningShock还没有MotionWarping; 翻译; 被动技能（随时间减Stacking Value） 
-- [ ] 能力升级 Lightning Shock每升一级可以自动连接最近的一个敌人
-- [ ] Health/Mana Crystal的持续恢复效果，目前是用插值算法来跟随角色，是否还可以用行为树使它更真实一点。（目前如果角色一直移动，效果是追不上角色的，想要角色突然移动效果延迟一段时间开始，并且角色一直移动效果可以在加速后追上角色）
-- [x] 完成拾取物品的动画
-- [x] 没有蓝量LightningShock需要立即结束、攻击命中动画能不能复用
-- [x] LightningShock对敌人的伤害没有显示
-- [x] 实现经验条和升级, 升级后文字提示
-- [ ] 开始游戏界面和载入界面
-- [x] 升级后最大血量没有改变
-- [ ] stacking值为0后，infinite effect还在一直执行
-- [x] 如果敌人被点燃后烧死，经验会给多出一倍
-- [x] 技能加点影响、，Loot掉落根据敌人等级
-- [ ] Loot暂时不支持每种敌人配置
-- [x] Widget显示敌人等级
-- [ ] Localize
+# 演示
 
-## PROBLEM
-- [x] diff between static delegate and dynamic delegate
-![](assets/2025-05-28-14-54-28.png)
-- [ ] PreAttributesChange Only Change the Current Value of the FGameplayAttributeData?
-- [ ] TObjectPtr有什么好处？
-- [x] diff between MMC and Exec_Calc (MMC只能改变一个Attribute，他们都可以捕获多个Attribute)
-- [x] cancel ability with tag (当启动当前能里会取消这个tag关联的能力)
-- [x] gameplay cue (GasDocument)
-- [ ] diff between pawn and character
-- [ ] GE中填GameplayCue无法Replicate，可能是虚幻版本问题？而且添加了之后第一次启动游戏触发GE会卡顿
-- [ ] MarkAsDirty() ?
-- [ ] Ability Batching
-- [ ] how to set actor relevancy range ()
-- [ ] EffectActor的EndOverlap已经绑定到Server了，但是执行多人游戏依然会在客户端执行，是因为Prediction吗？
-- [ ] 如果一个类中包含一个UniquePtr，拷贝这个类的时候，ptr会完全拷贝吗？
-- [ ] c++子类可以在构造器的初始化列表中显示调用父类构造器，如果不指定会隐式调用父类构造器吗？
-- [x] 如果一个方法返回引用，调用这个方法时也需要指定变量为引用，才能真正得到引用
+![](./assets/关卡演示.mp4)
 
-## Editor Skill
-- GA，Instance PerActor，每个Actor只会有一个GA创建
-![](assets/2025-06-11-23-22-22.png)
-- 避免AI角色互相拥挤 (没有strafe blend space的话，角色漂移看起来会不正常)
-![](assets/2025-06-26-20-08-15.png)
+# 基础设计
+## 数值属性
+每个角色都拥有一个AttributeSet属性列表，包括主要主要属性、派生属性和必有属性，其中主要属性可以通过技能点
+来升级，由于派生属性都是基于主要属性或其他派生属性计算，所以升级主要属性后相关派生属性也会跟着变化。还有一个
+特殊的属性，元属性（Meta Attributes）这个属性不会复制到客户端，只存在于服务器，此类属性用于复杂计算，如伤害，
+造成伤害不会直接修改角色血量，而是修改改角色的元属性InComingDamage，然后通过计算护甲、暴击率、抵抗率等变量得出
+造成的血量扣减，这个设计可以解耦伤害、叠加值等复杂计算的代码，提升代码复用率。
 
 
-## NOTE
-- GAS
- - AttributeSet
- - GameplayEffect
- - GameplayAbility
- - AbilityTask
+### 主要属性
+- 力量: 影响基础攻击伤害
+- 智力: 影响魔力上限
+- 抵抗: 基础抵抗属性，会造成伤害减免
+- 活力: 影响血量上限
+### 派生属性
+- 护甲: 提升伤害减免
+- 抵挡率: 有几率减半伤害
+- 暴击率: 有几率造成双倍伤害
+- 最大血量
+- 最大魔力
+- 火焰抵抗: 火焰伤害减免 
+- 雷电抵抗: 雷电伤害减免
+- 物理抵抗: 物理伤害减免
+- 最大火焰叠加: 火焰叠加值满后角色会着火并持续扣减血量
+- 最大雷电叠加: 雷电叠加值满后角色会眩晕
+### 必有属性
+- 血量
+- 魔力
+- 火焰叠加
+- 雷电叠加
+- 经验值
+- 最大经验值: 达到最大经验值角色升级
+- 等级: 角色等级
+- 技能点: 升级后获取技能点，可以用于提升主要属性等级和技能等级
 
-- blendspace player, 相当于一个占位符，可以在子类中设置
-- call a blueprint native event, Execute_XXX(TargetObj), require for TargetObj is because native event is a static function
+#### 火焰和雷电叠加值演示
+![](assets/叠加值演示.mp4)
+
+### 元属性
+通过元属性设计解耦复杂计算，这里演示了三个元属性的复杂计算。
 ```c++
-ICombatInterface::Execute_GetCombatSocketLocationExecute_GetCombatSocketLocation(GetAvatarActorFromActorInfo());
-```
-- UFUNCTION不支持template function
-- TMap中不能包含TArray，只能定义一个Struct，Struct中包含Array
-- Socket可以用于:
-    - attach武器
-    - anim montage中timed niagara effect需要socket（eg：攻击trail）
-- AbilitySystemComponent->RegisterGameplayTagEvent (eg: Register Gameplay Tag Event (Hit React))
-- If you get the error message LogAbilitySystem: Warning: Can't activate LocalOnly or LocalPredicted ability %s when not local! then you did not initialize your ASC on the client.
+    // 是否为环境伤害或叠加伤害效果，如果是，不计算暴击伤害、防御伤害
+    bool bEnvDamage =
+        Spec.Def->GetAssetTags()
+        // .GetDynamicAssetTags()
+        .HasTagExact(FDefaultGameplayTags::Get().Effect_EnvDamage);
+    bool bStackingDamage =
+        Spec.Def->GetAssetTags()
+        .HasTagExact(FDefaultGameplayTags::Get().Effect_StackingDamage);
+    bool bIgnoreCritAndBlock { bEnvDamage || bStackingDamage };
 
-## PLUS
-- 虚血条插值
-- 暴击造成敌人血条震动（TODO）
-- 敌人行为树(TODO)
+    float Damage { 0.f };
+
+    for (const auto& [DamageTypeTag, ResistanceTypeTag] : FDefaultGameplayTags::Get().DamageTypeAndResistanceMap) {
+        // 如果为环境伤害且角色拥有叠加伤害触发状态，忽略此类型伤害
+        auto DamageTypeAndStackingTriggeredMap = FDefaultGameplayTags::Get().DamageTypeAndStackingTriggeredMap;
+        if (bEnvDamage && 
+            DamageTypeAndStackingTriggeredMap.Contains(DamageTypeTag) && 
+            TargetASC->HasMatchingGameplayTag(DamageTypeAndStackingTriggeredMap[DamageTypeTag])) {
+            continue;
+        }
+
+        float Resistance { 0.f };
+
+        // Get Set By Caller
+        float DamageVal = Spec.GetSetByCallerMagnitude(DamageTypeTag);
+
+        ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
+            DamageStatics().TagsToCaptureDefMap[ResistanceTypeTag],
+            EvaluationParameters, Resistance);
+
+        Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
+
+        DamageVal *= ( 100.f - Resistance ) / 100.f;
+        Damage += DamageVal;
+    }
+
+    float Armor { 0.f };
+    float BlockChance { 0.f };
+    float ArmorPenetration { 0.f };
+    float CriticalHitChance { 0.f };
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, Armor);
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters, BlockChance);
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluationParameters, ArmorPenetration);
+    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitChanceDef, EvaluationParameters, CriticalHitChance);
+    Armor = FMath::Max<float>(0.f, Armor);
+    BlockChance = FMath::Max<float>(0.f, BlockChance);
+    ArmorPenetration = FMath::Max<float>(0.f, ArmorPenetration);
+
+
+    // 是否触发防御
+    bool bBlocked = !bIgnoreCritAndBlock && FMath::RandRange(1, 100) <= BlockChance;
+    if (bBlocked) {
+        Damage /= 2.f;
+    }
+
+    // 护甲减伤、暴击
+    auto CharacterClassInfo = UDefaultAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatarActor);
+    auto DamageCalcCoefficientsCT = CharacterClassInfo->DamageCalcCoefficientsCT;
+    const auto ArmorPenetrationCurve = DamageCalcCoefficientsCT->FindCurve("ArmorPenetrationCoefficient", FString());
+    const auto EffectiveArmorCurve = DamageCalcCoefficientsCT->FindCurve("EffectiveArmorCoefficient", FString());
+    const auto CriticalHitCurve = DamageCalcCoefficientsCT->FindCurve("CriticalHitCoefficient", FString());
+    
+    const auto ArmorPenetrationCoefficient = ArmorPenetrationCurve->Eval(SourceCombatInterface->GetPlayerLevel());
+    const auto EffectiveArmorCoefficient = EffectiveArmorCurve->Eval(TargetCombatInterface->GetPlayerLevel());
+    const auto CriticalCoefficient = CriticalHitCurve->Eval(SourceCombatInterface->GetPlayerLevel());
+
+
+    if (!bIgnoreCritAndBlock) {
+        float EffectiveArmor = Armor * (100.f - ArmorPenetration * ArmorPenetrationCoefficient) / 100.f;
+        Damage *= (100.f - EffectiveArmor * EffectiveArmorCoefficient) / 100.f;
+    }
+
+    bool bCriticalHit = !bIgnoreCritAndBlock && FMath::RandRange(1, 100) <= CriticalHitChance;
+    if (bCriticalHit) {
+        Damage *= 2 * CriticalCoefficient; 
+    }
+
+
+    // Set Custom ContextHandle
+    FGameplayEffectContextHandle Context = Spec.GetContext();
+    UDefaultAbilitySystemLibrary::SetIsBlockedHit(Context, bBlocked);
+    UDefaultAbilitySystemLibrary::SetIsCriticalHit(Context, bCriticalHit);
+
+    // Damage Modifier
+    FGameplayModifierEvaluatedData EvaluatedData { UDefaultAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage };
+    OutExecutionOutput.AddOutputModifier(EvaluatedData);
+
+    // Stacking Modifier
+    for (const auto& Pair : FDefaultGameplayTags::Get().StackingTypeAndTriggeredMap) {
+        float StackingVal { Spec.GetSetByCallerMagnitude(Pair.Key) };
+        if (TargetASC->HasMatchingGameplayTag(Pair.Value)) {
+            StackingVal = 0.f;
+        }
+
+        FGameplayModifierEvaluatedData EvaluatedDataStacking { TargetAS->StackingTagAttributeMap[Pair.Key], EGameplayModOp::Additive, StackingVal };
+        OutExecutionOutput.AddOutputModifier(EvaluatedDataStacking);
+    }
+```
+- IncomgingDamage: 计算暴击、抵挡、护甲和各种属性的抵抗。如物理抵抗减免物理伤害
+- IncomingFireStacking: 不计算暴击、抵挡、护甲。只计算火焰抵抗
+- IncomingLightningStacking: 不计算暴击、抵挡、护甲。只计算雷电抵抗
+
+## 技能
+### 火球术
+#### 技能演示
+技能生成一个或多个Projectile（飞行物组件），通过HomingTarget实现追踪敌人的效果。如果生成多个飞行物，会计算每个飞行物的射出方向
+#### 技能属性
+火球数量: 1-2级1个，3-5级2个，6-9级四个
+![](assets/2025-08-03-19-34-22.png)
+
+火球伤害，伤害表：
+![](assets/2025-08-03-19-37-04.png)
+
+### 雷击
+#### 技能演示
+技能射出一个或多个雷电束，敌人在范围内会造成雷电伤害和雷电叠加伤害，叠加伤害叠满后造成眩晕效果。技能可以通过按住持续释放，松开按键
+进入节能冷却。魔力消耗分为两段，初始消耗和持续消耗，释放技能必定扣减初始消耗，持续释放技能会根据时间扣减魔力值
+#### 技能属性
+雷电束数量： 1-2级1束，3级以上3束
+![](assets/2025-08-03-19-47-53.png)
+雷电束长度表：
+![](assets/2025-08-03-19-49-20.png)
+伤害表：
+![](assets/2025-08-03-19-49-52.png)
+
+# 敌人AI
+## 行为树
+近战敌人和远程敌人拥有不同的行为模式，近战敌人靠近目标后攻击，然后随机在目标周围移动后再次发动攻击。
+远程敌人会于目标保持距离，并且会绕过掩体攻击目标
+![](assets/2025-08-03-19-55-01.png)
+
+## EQS环境感知
+远程类型敌人会根据EQS感知周围的环境并绕过障碍物攻击主角
+
+![](assets/2025-08-03-19-56-25.png)
